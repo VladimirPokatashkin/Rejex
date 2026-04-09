@@ -6,9 +6,9 @@ import lombok.Getter;
 import java.util.List;
 
 @AllArgsConstructor
-public final class ConcatenationNode implements TreeNode {
+public final class ConcatenationNode implements ASTNode {
 	@Getter
-	private List<TreeNode> children;
+	private List<ASTNode> children;
 
 	@Override
 	public boolean isNullable() {

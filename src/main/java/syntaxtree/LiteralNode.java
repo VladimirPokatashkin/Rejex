@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public final class LiteralNode implements TreeNode {
+public final class LiteralNode implements ASTNode {
 	private final String value;
 
 	@Setter

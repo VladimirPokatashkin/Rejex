@@ -1,12 +1,13 @@
 package syntaxtree;
 
-public sealed interface TreeNode permits
+public sealed interface ASTNode permits
 		LiteralNode,
 		ConcatenationNode,
 		ChoiceNode,
 		RepetitionNode,
 		GroupNode,
-		LookaheadNode {
+		LookaheadNode,
+		CharRangeNode {
 
 	boolean isNullable();
 }

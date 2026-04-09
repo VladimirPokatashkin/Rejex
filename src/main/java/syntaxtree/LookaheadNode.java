@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public final class LookaheadNode implements TreeNode {
-	private TreeNode left;
-	private TreeNode right;
+public final class LookaheadNode implements ASTNode {
+	private ASTNode left;
+	private ASTNode right;
 
 	@Override
 	public boolean isNullable() {

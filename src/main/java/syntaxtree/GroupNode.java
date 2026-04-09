@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public final class GroupNode implements TreeNode {
-	private TreeNode node;
+public final class GroupNode implements ASTNode {
+	private ASTNode node;
 	private int index;
 
 	@Override
