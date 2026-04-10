@@ -1,13 +1,15 @@
 package parser.impl;
 
+import other.Pair;
 import parser.IParser;
 import parser.ParsingException;
-import syntaxtree.GroupNode;
-import syntaxtree.LiteralNode;
-import syntaxtree.ASTNode;
+import syntaxtree.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser implements IParser {
-	private String input;
+	private final String input;
 	private int groupCnt = 0;
 	private int pos = 0;
 
@@ -35,7 +37,7 @@ public class Parser implements IParser {
 		} else throw new ParsingException("unexpected token: " + got + ". expected: " + c);
 	}
 
-	private boolean isGroupEnd() {
+	private boolean isStopToken() {
 		char c = peek();
 		return c == '/' || c == '|' || c == ')' || c == '\0';
 	}
@@ -56,29 +58,82 @@ public class Parser implements IParser {
 				return new GroupNode(node, ++groupCnt);
 			}
 			case '[' -> {
-
+				return parseCharRange();
+			}
+			default -> {
+				return new LiteralNode(String.valueOf(c));
 			}
 		}
 	}
 
-	private ASTNode parseRange() {
+	private ASTNode parseCharRange() throws ParsingException {
+		List<Pair<Character, Character>> ranges = new ArrayList<>();
+		List<Character> singles = new ArrayList<>();
 
+		while (peek() != ']' && peek() != '\0') {
+			char c = next();
+			if (peek() == '-') {
+				next();
+				char end = next();
+				ranges.add(new Pair<>(c, end));
+			} else {
+				singles.add(c);
+			}
+		}
+
+		expect(']');
+
+		return new CharRangeNode(ranges, singles);
 	}
 
-	private ASTNode parseRepetition() {
+	private ASTNode parseRange(ASTNode node) throws ParsingException {
+		StringBuilder range = new StringBuilder();
+		while (peek() != '}' && peek() != '\0') range.append(next());
+		expect('}');
 
+		String[] borders = range.toString().split(",", -1);
+		int min = borders[0].isEmpty() ? 0 : Integer.parseInt(borders[0].trim());
+		int max = borders.length < 2 || borders[1].isEmpty() ? -1 : Integer.parseInt(borders[1].trim());
+		return new RepetitionNode(node, min, max);
 	}
 
-	private ASTNode parseConcatenation() {
-
+	private ASTNode parseRepetition() throws ParsingException {
+		ASTNode node = parseLiteral();
+		if (matches('*') || matches('…')) {
+			return new RepetitionNode(node, 0, -1);
+		}
+		if (matches('+')) {
+			return new RepetitionNode(node, 1, -1);
+		}
+		if (matches('{')) {
+			return parseRange(node);
+		}
+		return node;
 	}
 
-	private ASTNode parseLookahead() {
-
+	private ASTNode parseConcatenation() throws ParsingException {
+		List<ASTNode> children = new ArrayList<>();
+		while (pos < input.length() && !isStopToken()) {
+			matches('.');
+			children.add(parseRepetition());
+		}
+		return children.size() == 1 ? children.getFirst() : new ConcatenationNode(children);
 	}
 
-	private ASTNode parseChoice() {
+	private ASTNode parseLookahead() throws ParsingException {
+		ASTNode node = parseConcatenation();
+		while (matches('/')) {
+			node = new LookaheadNode(node, parseConcatenation());
+		}
+		return node;
+	}
+
+	private ASTNode parseChoice() throws ParsingException {
 		ASTNode node = parseLookahead();
+		while (matches('|')) {
+			node = new ChoiceNode(node, parseLookahead());
+		}
+		return node;
 	}
 
 
