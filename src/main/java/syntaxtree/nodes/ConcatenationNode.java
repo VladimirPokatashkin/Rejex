@@ -1,4 +1,4 @@
-package syntaxtree;
+package syntaxtree.nodes;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

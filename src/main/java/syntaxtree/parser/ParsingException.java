@@ -1,4 +1,4 @@
-package parser;
+package syntaxtree.parser;
 
 import java.io.IOException;
 

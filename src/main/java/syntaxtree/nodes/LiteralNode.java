@@ -1,4 +1,4 @@
-package syntaxtree;
+package syntaxtree.nodes;
 
 import lombok.Getter;
 import lombok.Setter;

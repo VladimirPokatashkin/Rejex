@@ -1,15 +1,17 @@
-package parser.impl;
+package syntaxtree.parser.impl;
 
+import lombok.Getter;
 import other.Pair;
-import parser.IParser;
-import parser.ParsingException;
-import syntaxtree.*;
+import syntaxtree.nodes.*;
+import syntaxtree.parser.IParser;
+import syntaxtree.parser.ParsingException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Parser implements IParser {
 	private final String input;
+	@Getter
 	private int groupCnt = 0;
 	private int pos = 0;
 

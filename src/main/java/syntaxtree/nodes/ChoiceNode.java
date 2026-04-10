@@ -1,11 +1,11 @@
-package syntaxtree;
+package syntaxtree.nodes;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
-public final class LookaheadNode implements ASTNode {
+@Getter
+public final class ChoiceNode implements ASTNode {
 	private ASTNode left;
 	private ASTNode right;
 

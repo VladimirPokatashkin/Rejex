@@ -1,4 +1,4 @@
-package syntaxtree;
+package syntaxtree.nodes;
 
 public sealed interface ASTNode permits
 		LiteralNode,
