@@ -1,15 +1,13 @@
-package syntaxtree.parser.impl;
+package syntaxtree.parser;
 
 import lombok.Getter;
 import other.Pair;
 import syntaxtree.nodes.*;
-import syntaxtree.parser.IParser;
-import syntaxtree.parser.ParsingException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Parser implements IParser {
+public class Parser {
 	private final String input;
 	@Getter
 	private int groupCnt = 0;
@@ -49,10 +47,10 @@ public class Parser implements IParser {
 
 		switch (c) {
 			case '%' -> {
-				return new LiteralNode(String.valueOf(next()));
+				return new LiteralNode(next());
 			}
 			case '$' -> {
-				return new LiteralNode("");
+				return new LiteralNode();
 			}
 			case '(' -> {
 				ASTNode node = parseChoice();
@@ -63,7 +61,7 @@ public class Parser implements IParser {
 				return parseCharRange();
 			}
 			default -> {
-				return new LiteralNode(String.valueOf(c));
+				return new LiteralNode(c);
 			}
 		}
 	}
@@ -139,13 +137,15 @@ public class Parser implements IParser {
 	}
 
 
+	public static Parser of(String input) {
+		return new Parser(input);
+	}
 
 	public Parser(String input) {
 		this.input = input;
 	}
 
-	@Override
-	public ASTNode parse() {
-		return null;
+	public ASTNode parse() throws ParsingException {
+		return parseChoice();
 	}
 }

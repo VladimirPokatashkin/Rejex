@@ -1,16 +1,15 @@
-package syntaxtree.impl;
+package syntaxtree;
 
 import lombok.Getter;
-import syntaxtree.ISyntaxTree;
 import syntaxtree.nodes.*;
-import syntaxtree.parser.IParser;
-import syntaxtree.parser.impl.Parser;
+import syntaxtree.parser.Parser;
+import syntaxtree.parser.ParsingException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class SyntaxTree implements ISyntaxTree {
+public class SyntaxTree {
 	private ASTNode root;
 	private int groupCnt;
 
@@ -41,8 +40,8 @@ public class SyntaxTree implements ISyntaxTree {
 		}
 	}
 
-	public SyntaxTree(String expression) {
-		IParser parser = new Parser(expression + "#");
+	public SyntaxTree(String expression) throws ParsingException {
+		var parser = Parser.of(expression);
 
 		root = parser.parse();
 		groupCnt = parser.getGroupCnt();

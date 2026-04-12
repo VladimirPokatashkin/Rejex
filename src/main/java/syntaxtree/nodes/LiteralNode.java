@@ -1,21 +1,21 @@
 package syntaxtree.nodes;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@NoArgsConstructor
 public final class LiteralNode implements ASTNode {
-	private final String value;
+	private char value = 'v';
+	private boolean isEmpty = true;
 
 	@Setter
 	private int pos = -1;
 
-	public LiteralNode(String value) {
+	public LiteralNode(char value) {
 		this.value = value;
-	}
-
-	public boolean isEmpty() {
-		return value.isEmpty();
+		isEmpty = false;
 	}
 
 	@Override
