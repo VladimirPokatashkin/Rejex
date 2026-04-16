@@ -14,7 +14,11 @@ import java.util.List;
 public class NFA {
 	private NFAState begin;
 	private NFAState end;
+	private boolean hasLookahead;
 
+	public NFA(NFAState begin, NFAState end) {
+		this(begin, end, false);
+	}
 
 	private static NFA ofNode(ASTNode node) {
 		switch (node) {
@@ -169,12 +173,19 @@ public class NFA {
 	}
 
 	private static NFA ofLookahead(LookaheadNode lookahead) {
+		NFA mainPart = ofNode(lookahead.getLeft());
+		NFA lookaheadPart = ofNode(lookahead.getRight());
 
+		mainPart.end.setLookahead(lookaheadPart);
+		lookaheadPart.end.markAsLookaheadEnd();
+
+		return new NFA(mainPart.begin, mainPart.end, true);
 	}
 
 
-
 	public static NFA ofTree(SyntaxTree tree) {
-		return ofNode(tree.getRoot());
+		var nfa = ofNode(tree.getRoot());
+		nfa.end.setAcceptable(true);
+		return nfa;
 	}
 }

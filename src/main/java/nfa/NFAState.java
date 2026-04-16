@@ -12,10 +12,14 @@ import java.util.Map;
 public class NFAState {
 	private static int counter = 0;
 	private int id;
+	@Setter
 	private boolean isAcceptable;
 	private Map<Integer, Boolean> groupMap;
 	private Map<Character, List<NFAState>> transitions;
 	private List<NFAState> epsilons;
+	@Setter
+	private NFA lookahead;
+	private boolean isLookaheadEnd;
 
 	public NFAState() {
 		this.id = counter++;
@@ -31,5 +35,9 @@ public class NFAState {
 
 	public void addEpsilon(NFAState state) {
 		epsilons.add(state);
+	}
+
+	public void markAsLookaheadEnd() {
+		isLookaheadEnd = true;
 	}
 }
