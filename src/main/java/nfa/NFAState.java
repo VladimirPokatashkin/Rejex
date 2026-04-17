@@ -37,6 +37,6 @@ public class NFAState {
 	}
 
 	public List<NFAState> getTransition(char c) {
-		return transitions.get(c);
+		return transitions.getOrDefault(c, List.of());
 	}
 }
