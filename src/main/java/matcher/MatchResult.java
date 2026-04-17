@@ -10,6 +10,10 @@ public record MatchResult(
 		this(null, false);
 	}
 
+	public MatchResult(List<String> groups) {
+		this(groups, true);
+	}
+
 	public String getGroupNumber(int num) {
 		return groups.get(num);
 	}

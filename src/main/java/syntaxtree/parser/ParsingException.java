@@ -1,8 +1,8 @@
 package syntaxtree.parser;
 
-import java.io.IOException;
+import java.security.InvalidParameterException;
 
-public class ParsingException extends IOException {
+public class ParsingException extends InvalidParameterException {
 	public ParsingException(String message) {
 		super(message);
 	}

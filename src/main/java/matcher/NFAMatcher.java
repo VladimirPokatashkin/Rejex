@@ -39,7 +39,7 @@ public class NFAMatcher {
 
 		List<String> groupList = new ArrayList<>();
 		groups.forEach((_, group) -> groupList.add(input.substring(group.getBegin(), group.getEnd() + 1)));
-		return new MatchResult(groupList, true);
+		return new MatchResult(groupList);
 	}
 
 	private Set<NFAState> epsilonClosure(Set<NFAState> states) {
