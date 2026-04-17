@@ -177,7 +177,6 @@ public class NFA {
 		NFA lookaheadPart = ofNode(lookahead.getRight());
 
 		mainPart.end.setLookahead(lookaheadPart);
-		lookaheadPart.end.markAsLookaheadEnd();
 
 		return new NFA(mainPart.begin, mainPart.end, true);
 	}

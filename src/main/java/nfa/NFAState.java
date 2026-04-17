@@ -19,7 +19,6 @@ public class NFAState {
 	private List<NFAState> epsilons;
 	@Setter
 	private NFA lookahead;
-	private boolean isLookaheadEnd;
 
 	public NFAState() {
 		this.id = counter++;
@@ -37,7 +36,7 @@ public class NFAState {
 		epsilons.add(state);
 	}
 
-	public void markAsLookaheadEnd() {
-		isLookaheadEnd = true;
+	public List<NFAState> getTransition(char c) {
+		return transitions.get(c);
 	}
 }
