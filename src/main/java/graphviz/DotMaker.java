@@ -1,7 +1,9 @@
 package graphviz;
 
-import nfa.NFA;
-import nfa.NFAState;
+import automaton.nfa.NFA;
+import automaton.nfa.NFAState;
+import syntaxtree.SyntaxTree;
+import syntaxtree.nodes.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,7 +71,7 @@ public class DotMaker {
 				sb.append("        label=\"Lookahead\";\n");
 				sb.append("        color=blue;\n");
 
-				processLookahead(lookaheadNFA, sb);
+				processLookaheadNFA(lookaheadNFA, sb);
 
 				sb.append("    }\n");
 			}
@@ -90,7 +92,7 @@ public class DotMaker {
 				.replace("\t", "\\t");
 	}
 
-	private static void processLookahead(NFA lookaheadNFA, StringBuilder sb) {
+	private static void processLookaheadNFA(NFA lookaheadNFA, StringBuilder sb) {
 		if (lookaheadNFA == null) return;
 
 		Set<NFAState> visited = new HashSet<>();
@@ -126,5 +128,89 @@ public class DotMaker {
 				}
 			}
 		}
+	}
+
+	public static String ASTtoDotString(SyntaxTree tree) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("digraph SyntaxTree {\n");
+		sb.append("  rankdir=TB;\n");
+		sb.append("  node [shape=box];\n");
+
+		processNode(tree.getRoot(), sb, 0);
+
+		sb.append("}\n");
+		return sb.toString();
+	}
+
+	private static int processNode(ASTNode node, StringBuilder sb, int id) {
+		int currentId = id;
+		String label = getNodeLabel(node);
+		sb.append("  n").append(currentId).append(" [label=\"").append(escapeDotLabel(label)).append("\"];\n");
+
+		int nextId = currentId + 1;
+
+		switch (node) {
+			case LiteralNode _, EmptyNode _, CharRangeNode _, EndNode _ -> {}
+			case GroupNode group -> {
+				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(";\n");
+				nextId = processNode(group.getNode(), sb, nextId);
+			}
+			case RepetitionNode repetition -> {
+				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(";\n");
+				nextId = processNode(repetition.getNode(), sb, nextId);
+			}
+			case LookaheadNode lookahead -> {
+				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"expr\"];\n");
+				nextId = processNode(lookahead.getLeft(), sb, nextId);
+				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"lookahead\"];\n");
+				nextId = processNode(lookahead.getRight(), sb, nextId);
+			}
+			case ChoiceNode choice -> {
+				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"left\"];\n");
+				nextId = processNode(choice.getLeft(), sb, nextId);
+				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"right\"];\n");
+				nextId = processNode(choice.getRight(), sb, nextId);
+			}
+			case ConcatenationNode concatenation -> {
+				for (int i = 0; i < concatenation.getChildren().size(); ++i) {
+					sb.append("  n").append(currentId).append(" -> n").append(nextId);
+					if (concatenation.getChildren().size() > 1) {
+						sb.append(" [label=\"").append(i + 1).append("\"]");
+					}
+					sb.append(";\n");
+					nextId = processNode(concatenation.getChildren().get(i), sb, nextId);
+				}
+			}
+		}
+
+		return nextId;
+	}
+
+	private static String getNodeLabel(ASTNode node) {
+		return switch (node) {
+			case LiteralNode literal -> "'" + escapeDotLabel(String.valueOf(literal.getValue())) + "'";
+			case EmptyNode _ -> "ε";
+			case EndNode _ -> "#";
+			case GroupNode group -> "group №" + group.getIndex();
+			case ConcatenationNode _ -> "concatenation";
+			case LookaheadNode _ -> "lookahead";
+			case ChoiceNode _ -> "choice";
+			case CharRangeNode range -> {
+				StringBuilder sb = new StringBuilder();
+				sb.append("\\[");
+				range.getRanges().forEach(pair -> {
+					sb.append(pair.first);
+					sb.append('-');
+					sb.append(pair.second);
+				});
+				range.getSingles().forEach(sb::append);
+				sb.append("\\]");
+				yield sb.toString();
+			}
+			case RepetitionNode repetition -> {
+				String maxStr = repetition.getMax() == -1 ? "∞" : String.valueOf(repetition.getMax());
+				yield "repetition \\[" + repetition.getMin() + ".." + maxStr + "\\]";
+			}
+		};
 	}
 }
