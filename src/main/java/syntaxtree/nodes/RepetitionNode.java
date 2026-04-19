@@ -10,8 +10,4 @@ public final class RepetitionNode implements ASTNode {
 	private int min;
 	private int max;
 
-	@Override
-	public boolean isNullable() {
-		return false;
-	}
 }

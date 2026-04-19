@@ -9,8 +9,4 @@ public final class GroupNode implements ASTNode {
 	private ASTNode node;
 	private int index;
 
-	@Override
-	public boolean isNullable() {
-		return false;
-	}
 }

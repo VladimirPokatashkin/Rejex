@@ -10,8 +10,4 @@ public final class ConcatenationNode implements ASTNode {
 	@Getter
 	private List<ASTNode> children;
 
-	@Override
-	public boolean isNullable() {
-		return false;
-	}
 }

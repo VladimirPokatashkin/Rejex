@@ -22,6 +22,11 @@ public class Parser {
 		return input.charAt(pos++);
 	}
 
+	private boolean isMeta(char c) {
+		return c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')' || c == '$'
+				|| c == '%' || c == '.' || c == '*' || c == '+' || c == '…' || c == '|' || c == '/' || c == '-';
+	}
+
 	private boolean matches(char c) {
 		if (peek() == c) {
 			++pos;
@@ -34,7 +39,7 @@ public class Parser {
 		char got = peek();
 		if (got == c) {
 			++pos;
-		} else throw new ParsingException("unexpected token: " + got + ". expected: " + c);
+		} else throw new ParsingException("unexpected token: '" + got + "'. expected: '" + c + "'");
 	}
 
 	private boolean isStopToken() {
@@ -47,15 +52,18 @@ public class Parser {
 
 		switch (c) {
 			case '%' -> {
-				return new LiteralNode(next());
+				char s = next();
+				if (isMeta(s)) return new LiteralNode(s);
+				throw new ParsingException("expected metacharacter after '%', got: " + s);
 			}
 			case '$' -> {
-				return new LiteralNode();
+				return new EmptyNode();
 			}
 			case '(' -> {
+				int id = ++groupCnt;
 				ASTNode node = parseChoice();
 				expect(')');
-				return new GroupNode(node, ++groupCnt);
+				return new GroupNode(node, id);
 			}
 			case '[' -> {
 				return parseCharRange();
@@ -72,10 +80,15 @@ public class Parser {
 
 		while (peek() != ']' && peek() != '\0') {
 			char c = next();
-			if (peek() == '-') {
+			if (peek() == '-' && c != '%') {
 				next();
 				char end = next();
 				ranges.add(new Pair<>(c, end));
+			} else if (c == '%') {
+				char s = next();
+				if (isMeta(s)) {
+					singles.add(s);
+				} else throw new ParsingException("expected metacharacter after '%', got: " + s);
 			} else {
 				singles.add(c);
 			}
@@ -113,6 +126,7 @@ public class Parser {
 
 	private ASTNode parseConcatenation() throws ParsingException {
 		List<ASTNode> children = new ArrayList<>();
+		children.add(parseRepetition());
 		while (pos < input.length() && !isStopToken()) {
 			matches('.');
 			children.add(parseRepetition());
@@ -122,7 +136,7 @@ public class Parser {
 
 	private ASTNode parseLookahead() throws ParsingException {
 		ASTNode node = parseConcatenation();
-		while (matches('/')) {
+		if (matches('/')) {
 			node = new LookaheadNode(node, parseConcatenation());
 		}
 		return node;
@@ -135,7 +149,6 @@ public class Parser {
 		}
 		return node;
 	}
-
 
 	public static Parser of(String input) {
 		return new Parser(input);
