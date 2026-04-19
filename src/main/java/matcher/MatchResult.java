@@ -1,16 +1,16 @@
 package matcher;
 
-import java.util.List;
+import java.util.Map;
 
 public record MatchResult(
-		List<String> groups,
+		Map<Integer, String> groups,
 		boolean isSuccess
 ) {
 	public MatchResult() {
 		this(null, false);
 	}
 
-	public MatchResult(List<String> groups) {
+	public MatchResult(Map<Integer, String> groups) {
 		this(groups, true);
 	}
 
