@@ -1,4 +1,4 @@
-package nfa;
+package automaton.nfa;
 
 import lombok.Getter;
 import lombok.Setter;

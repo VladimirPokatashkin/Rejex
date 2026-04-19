@@ -1,4 +1,4 @@
-package nfa;
+package automaton.nfa;
 
 
 import lombok.AllArgsConstructor;
@@ -25,6 +25,9 @@ public class NFA {
 			case LiteralNode literal -> {
 				return ofLiteral(literal);
 			}
+			case EmptyNode _ -> {
+				return ofEmpty();
+			}
 			case ConcatenationNode concatenation -> {
 				return ofConcatenation(concatenation);
 			}
@@ -43,18 +46,21 @@ public class NFA {
 			case LookaheadNode lookahead -> {
 				return ofLookahead(lookahead);
 			}
+			default -> throw new IllegalArgumentException("tree with end node must be compiled in dfa");
 		}
 	}
 
 	private static NFA ofLiteral(LiteralNode literal) {
 		var begin = new NFAState();
 		var end = new NFAState();
+		begin.addTransition(literal.getValue(), end);
+		return new NFA(begin, end);
+	}
 
-		if (literal.isEmpty()) {
-			begin.addEpsilon(end);
-		} else {
-			begin.addTransition(literal.getValue(), end);
-		}
+	private static NFA ofEmpty() {
+		var begin = new NFAState();
+		var end = new NFAState();
+		begin.addEpsilon(end);
 		return new NFA(begin, end);
 	}
 
@@ -176,6 +182,8 @@ public class NFA {
 		NFA mainPart = ofNode(lookahead.getLeft());
 		NFA lookaheadPart = ofNode(lookahead.getRight());
 
+		lookaheadPart.end.setAcceptable(true);
+
 		mainPart.end.setLookahead(lookaheadPart);
 
 		return new NFA(mainPart.begin, mainPart.end, true);
@@ -183,6 +191,7 @@ public class NFA {
 
 
 	public static NFA ofTree(SyntaxTree tree) {
+		NFAState.resetCounter();
 		var nfa = ofNode(tree.getRoot());
 		nfa.end.setAcceptable(true);
 		return nfa;

@@ -1,4 +1,4 @@
-package nfa;
+package automaton.nfa;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +26,10 @@ public class NFAState {
 		groupMap = new HashMap<>();
 		transitions = new HashMap<>();
 		epsilons = new ArrayList<>();
+	}
+
+	public static void resetCounter() {
+		counter = 0;
 	}
 
 	public void addTransition(char c, NFAState state) {

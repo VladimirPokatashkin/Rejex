@@ -1,13 +1,15 @@
 package pattern;
 
 import lombok.Getter;
+import matcher.MatchResult;
 import matcher.NFAMatcher;
-import nfa.NFA;
+import automaton.nfa.NFA;
 import syntaxtree.SyntaxTree;
 
+@Getter
 public class Pattern {
-	@Getter
 	private final NFA nfa;
+	private MatchResult matchResult;
 
 	public Pattern(String rejex) {
 		SyntaxTree ast = new SyntaxTree(rejex);
@@ -20,6 +22,7 @@ public class Pattern {
 
 	public boolean matches(String text) {
 		var matcher = new NFAMatcher(nfa, text);
-		return matcher.match().isSuccess();
+		matchResult = matcher.match();
+		return matchResult.isSuccess();
 	}
 }
