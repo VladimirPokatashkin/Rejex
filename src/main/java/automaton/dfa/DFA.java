@@ -8,9 +8,8 @@ import syntaxtree.nodes.LiteralNode;
 
 import java.util.*;
 
-
+@Getter
 public class DFA {
-	@Getter
 	private final DFAState begin;
 	private final Set<DFAState> states;
 
@@ -55,7 +54,7 @@ public class DFA {
 							_ -> new HashSet<>()).addAll(nextPositions);
 				} else if (node instanceof CharRangeNode range) {
 					range.getRanges().forEach(pair -> {
-						for (char c = pair.first; c < pair.second; ++c) {
+						for (char c = pair.first; c <= pair.second; ++c) {
 							transitionsFromCurrent.computeIfAbsent(c, _ -> new HashSet<>()).addAll(nextPositions);
 						}
 					});
@@ -84,5 +83,100 @@ public class DFA {
 		}
 
 		return new DFA(begin, states);
+	}
+
+	public DFA minimize() {
+		Set<Character> alphabet = getAlphabet();
+
+		Set<DFAState> acceptableStates = new HashSet<>();
+		Set<DFAState> nonAcceptableStates = new HashSet<>();
+		states.forEach(state -> {
+			if (state.isAcceptable()) acceptableStates.add(state);
+			else nonAcceptableStates.add(state);
+		});
+
+		List<Set<DFAState>> partitions = new ArrayList<>();
+		if (!acceptableStates.isEmpty()) partitions.add(acceptableStates);
+		if (!nonAcceptableStates.isEmpty()) partitions.add(nonAcceptableStates);
+
+		boolean splited = true;
+		while (splited) {
+			splited = false;
+			List<Set<DFAState>> newPartitions = new ArrayList<>();
+
+			for (var group : partitions) {
+				if (group.size() <= 1) {
+					newPartitions.add(group);
+					continue;
+				}
+
+				Map<List<Integer>, Set<DFAState>> splits = new HashMap<>();
+				for (DFAState state : group) {
+					List<Integer> signature = new ArrayList<>();
+
+					for (char symbol : alphabet) {
+						DFAState target = state.getNextState(symbol);
+						signature.add(findPartitionIndex(partitions, target));
+					}
+
+					splits.computeIfAbsent(signature, _ -> new HashSet<>()).add(state);
+				}
+
+				newPartitions.addAll(splits.values());
+				if (splits.size() > 1) splited = true;
+			}
+			partitions = newPartitions;
+		}
+
+		return rebuild(begin, partitions, alphabet);
+	}
+
+
+	private static int findPartitionIndex(List<Set<DFAState>> partitions, DFAState target) {
+		if (target == null) return -1;
+		for (int i = 0; i < partitions.size(); ++i) {
+			if (partitions.get(i).contains(target)) return i;
+		}
+		return -1;
+	}
+
+	private Set<Character> getAlphabet() {
+		Set<Character> alphabet = new HashSet<>();
+		states.forEach(state -> alphabet.addAll(state.getTransitions().keySet()));
+		return alphabet;
+	}
+
+	private static DFA rebuild(DFAState oldBegin, List<Set<DFAState>> partitions, Set<Character> alphabet) {
+		Map<Set<DFAState>, DFAState> stateMap = new HashMap<>();
+		DFAState newBegin = null;
+		DFAState.resetCounter();
+
+		for (var group : partitions) {
+			DFAState representative = group.iterator().next();
+
+			Set<Integer> newPositions = new HashSet<>();
+			group.forEach(state -> newPositions.addAll(state.getPositions()));
+
+			DFAState newState = new DFAState(newPositions);
+			newState.setAcceptable(representative.isAcceptable());
+			stateMap.put(group, newState);
+
+			if (group.contains(oldBegin)) newBegin = newState;
+		}
+
+		for (var group : partitions) {
+			DFAState state = stateMap.get(group);
+			DFAState representative = group.iterator().next();
+
+			for (char symbol : alphabet) {
+				DFAState target = representative.getNextState(symbol);
+				if (target != null) {
+					var targetGroup = partitions.stream().filter(gr -> gr.contains(target)).findAny();
+					targetGroup.ifPresent(dfaStates -> state.addTransition(symbol, stateMap.get(dfaStates)));
+				}
+			}
+		}
+
+		return new DFA(newBegin, new HashSet<>(stateMap.values()));
 	}
 }
