@@ -1,7 +1,10 @@
 package graphviz;
 
+import automaton.dfa.DFA;
+import automaton.dfa.DFAState;
 import automaton.nfa.NFA;
 import automaton.nfa.NFAState;
+import other.Pair;
 import syntaxtree.SyntaxTree;
 import syntaxtree.nodes.*;
 
@@ -130,6 +133,92 @@ public class DotMaker {
 		}
 	}
 
+	public static String DFAtoDotString(DFA dfa) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("digraph DFA {\n");
+		sb.append("    rankdir=LR;\n");
+		sb.append("    node [shape=circle];\n");
+		sb.append("    start [shape=point];\n");
+		sb.append("    start -> ").append(dfa.getBegin().getId()).append(";\n\n");
+
+		for (DFAState state : dfa.getStates()) {
+			if (state.isAcceptable()) {
+				sb.append("    ").append(state.getId())
+						.append(" [shape=doublecircle];\n");
+			}
+			if (state.isLookaheadEnd()) {
+				sb.append("    ").append(state.getId())
+						.append(" [color=blue, peripheries=2];\n");
+			}
+		}
+
+		sb.append("\n");
+
+		Map<Pair<Integer, Integer>, Set<Character>> groupedTransitions = new HashMap<>();
+		for (DFAState from : dfa.getStates()) {
+			for (var entry : from.getTransitions().entrySet()) {
+				char c = entry.getKey();
+				DFAState to = entry.getValue();
+				Pair<Integer, Integer> pair = new Pair<>(from.getId(), to.getId());
+				groupedTransitions.computeIfAbsent(pair, _ -> new TreeSet<>()).add(c);
+			}
+		}
+
+		for (var entry : groupedTransitions.entrySet()) {
+			var pair = entry.getKey();
+			Set<Character> chars = entry.getValue();
+			String label = compressCharSet(chars);
+			sb.append("    ").append(pair.first)
+					.append(" -> ").append(pair.second)
+					.append(" [label=\"").append(escapeDotLabel(label)).append("\"];\n");
+		}
+
+		sb.append("}\n");
+		return sb.toString();
+	}
+
+	private static String compressCharSet(Set<Character> chars) {
+		if (chars.isEmpty()) return "";
+
+		List<Character> sorted = new ArrayList<>(chars);
+		Collections.sort(sorted);
+
+		StringBuilder result = new StringBuilder();
+		int i = 0;
+		while (i < sorted.size()) {
+			char start = sorted.get(i);
+			char end = start;
+			int j = i + 1;
+			while (j < sorted.size() && sorted.get(j) == end + 1) {
+				end = sorted.get(j);
+				j++;
+			}
+
+			if (!result.isEmpty()) result.append(",");
+
+			if (start == end) {
+				result.append(escapeChar(start));
+			} else if (end == start + 1) {
+				result.append(escapeChar(start)).append(",").append(escapeChar(end));
+			} else {
+				result.append(escapeChar(start)).append("-").append(escapeChar(end));
+			}
+			i = j;
+		}
+		return result.toString();
+	}
+
+	private static String escapeChar(char c) {
+		return switch (c) {
+			case '\\' -> "\\\\";
+			case '"' -> "\\\"";
+			case '\n' -> "\\\\n";
+			case '\r' -> "\\\\r";
+			case '\t' -> "\\\\t";
+			default -> String.valueOf(c);
+		};
+	}
+
 	public static String ASTtoDotString(SyntaxTree tree) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("digraph SyntaxTree {\n");
@@ -143,37 +232,36 @@ public class DotMaker {
 	}
 
 	private static int processNode(ASTNode node, StringBuilder sb, int id) {
-		int currentId = id;
 		String label = getNodeLabel(node);
-		sb.append("  n").append(currentId).append(" [label=\"").append(escapeDotLabel(label)).append("\"];\n");
+		sb.append("  n").append(id).append(" [label=\"").append(escapeDotLabel(label)).append("\"];\n");
 
-		int nextId = currentId + 1;
+		int nextId = id + 1;
 
 		switch (node) {
 			case LiteralNode _, EmptyNode _, CharRangeNode _, EndNode _ -> {}
 			case GroupNode group -> {
-				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(";\n");
+				sb.append("  n").append(id).append(" -> n").append(nextId).append(";\n");
 				nextId = processNode(group.getNode(), sb, nextId);
 			}
 			case RepetitionNode repetition -> {
-				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(";\n");
+				sb.append("  n").append(id).append(" -> n").append(nextId).append(";\n");
 				nextId = processNode(repetition.getNode(), sb, nextId);
 			}
 			case LookaheadNode lookahead -> {
-				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"expr\"];\n");
+				sb.append("  n").append(id).append(" -> n").append(nextId).append(" [label=\"expr\"];\n");
 				nextId = processNode(lookahead.getLeft(), sb, nextId);
-				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"lookahead\"];\n");
+				sb.append("  n").append(id).append(" -> n").append(nextId).append(" [label=\"lookahead\"];\n");
 				nextId = processNode(lookahead.getRight(), sb, nextId);
 			}
 			case ChoiceNode choice -> {
-				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"left\"];\n");
+				sb.append("  n").append(id).append(" -> n").append(nextId).append(" [label=\"left\"];\n");
 				nextId = processNode(choice.getLeft(), sb, nextId);
-				sb.append("  n").append(currentId).append(" -> n").append(nextId).append(" [label=\"right\"];\n");
+				sb.append("  n").append(id).append(" -> n").append(nextId).append(" [label=\"right\"];\n");
 				nextId = processNode(choice.getRight(), sb, nextId);
 			}
 			case ConcatenationNode concatenation -> {
 				for (int i = 0; i < concatenation.getChildren().size(); ++i) {
-					sb.append("  n").append(currentId).append(" -> n").append(nextId);
+					sb.append("  n").append(id).append(" -> n").append(nextId);
 					if (concatenation.getChildren().size() > 1) {
 						sb.append(" [label=\"").append(i + 1).append("\"]");
 					}
@@ -197,19 +285,19 @@ public class DotMaker {
 			case ChoiceNode _ -> "choice";
 			case CharRangeNode range -> {
 				StringBuilder sb = new StringBuilder();
-				sb.append("\\[");
+				sb.append("[");
 				range.getRanges().forEach(pair -> {
 					sb.append(pair.first);
 					sb.append('-');
 					sb.append(pair.second);
 				});
 				range.getSingles().forEach(sb::append);
-				sb.append("\\]");
+				sb.append("]");
 				yield sb.toString();
 			}
 			case RepetitionNode repetition -> {
 				String maxStr = repetition.getMax() == -1 ? "∞" : String.valueOf(repetition.getMax());
-				yield "repetition \\[" + repetition.getMin() + ".." + maxStr + "\\]";
+				yield "repetition [" + repetition.getMin() + ".." + maxStr + "]";
 			}
 		};
 	}
