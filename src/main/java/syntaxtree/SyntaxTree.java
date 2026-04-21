@@ -15,10 +15,7 @@ public class SyntaxTree {
 	public SyntaxTree(String expression) throws ParsingException {
 		var parser = Parser.of(expression);
 		root = parser.parse();
-		groupCnt = parser.getGroupCnt();
-	}
-
-	public void markEnd() {
 		root = new ConcatenationNode(List.of(root, new EndNode()));
+		groupCnt = parser.getGroupCnt();
 	}
 }
