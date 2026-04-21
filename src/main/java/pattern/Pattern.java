@@ -1,19 +1,29 @@
 package pattern;
 
+import automaton.dfa.DFA;
 import lombok.Getter;
+import matcher.DFAMatcher;
 import matcher.MatchResult;
+import matcher.Matcher;
 import matcher.NFAMatcher;
 import automaton.nfa.NFA;
 import syntaxtree.SyntaxTree;
 
 @Getter
 public class Pattern {
-	private final NFA nfa;
+	private NFA nfa;
+	private DFA dfa;
+	private final SyntaxTree syntaxTree;
 	private MatchResult matchResult;
 
 	public Pattern(String rejex) {
-		SyntaxTree ast = new SyntaxTree(rejex);
-		nfa = NFA.ofTree(ast);
+		syntaxTree = new SyntaxTree(rejex);
+		if (syntaxTree.getGroupCnt() > 0) {
+			nfa = NFA.ofTree(syntaxTree);
+		} else {
+			dfa = DFA.ofTree(syntaxTree);
+			dfa = dfa.minimize();
+		}
 	}
 
 	public static Pattern compile(String rejex) {
@@ -21,7 +31,7 @@ public class Pattern {
 	}
 
 	public boolean matches(String text) {
-		var matcher = new NFAMatcher(nfa, text);
+		Matcher matcher = dfa == null ? new NFAMatcher(nfa, text) : new DFAMatcher(dfa, text);
 		matchResult = matcher.match();
 		return matchResult.isSuccess();
 	}
