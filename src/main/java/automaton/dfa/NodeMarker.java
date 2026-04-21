@@ -28,12 +28,12 @@ public class NodeMarker {
 		);
 
 		Set<Integer> firstPos = new HashSet<>(left.firstpos());
-		firstPos.addAll(right.firstpos());
+		if (left.nullable()) firstPos.addAll(right.firstpos());
 
-		Set<Integer> lastPos = new HashSet<>(left.lastpos());
-		lastPos.addAll(right.lastpos());
+		Set<Integer> lastPos = new HashSet<>(right.lastpos());
+		if (right.nullable()) lastPos.addAll(left.lastpos());
 
-		return new NodeInfo(left.nullable() || right.nullable(), firstPos, lastPos);
+		return new NodeInfo(left.nullable() && right.nullable(), firstPos, lastPos);
 	}
 
 	private NodeInfo markRepetition(RepetitionNode repetition) {

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class NFA {
+public final class NFA {
 	private NFAState begin;
 	private NFAState end;
 	private boolean hasLookahead;
@@ -25,7 +25,7 @@ public class NFA {
 			case LiteralNode literal -> {
 				return ofLiteral(literal);
 			}
-			case EmptyNode _ -> {
+			case EmptyNode _, EndNode _ -> {
 				return ofEmpty();
 			}
 			case ConcatenationNode concatenation -> {
@@ -46,7 +46,6 @@ public class NFA {
 			case LookaheadNode lookahead -> {
 				return ofLookahead(lookahead);
 			}
-			default -> throw new IllegalArgumentException("tree with end node must be compiled in dfa");
 		}
 	}
 

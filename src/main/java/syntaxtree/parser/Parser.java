@@ -13,6 +13,8 @@ public class Parser {
 	private int groupCnt = 0;
 	private int pos = 0;
 
+	private boolean insideLookahead;
+
 
 	private char peek() {
 		return pos < input.length() ? input.charAt(pos) : '\0';
@@ -42,9 +44,9 @@ public class Parser {
 		} else throw new ParsingException("unexpected token: '" + got + "'. expected: '" + c + "'");
 	}
 
-	private boolean isStopToken() {
+	private boolean notIsStopToken() {
 		char c = peek();
-		return c == '/' || c == '|' || c == ')' || c == '\0';
+		return c != '|' && c != ')' && c != '\0';
 	}
 
 	private ASTNode parseLiteral() throws ParsingException {
@@ -60,10 +62,10 @@ public class Parser {
 				return new EmptyNode();
 			}
 			case '(' -> {
-				int id = ++groupCnt;
+				int id = insideLookahead ? groupCnt : ++groupCnt;
 				ASTNode node = parseChoice();
 				expect(')');
-				return new GroupNode(node, id);
+				return insideLookahead ? node : new GroupNode(node, id);
 			}
 			case '[' -> {
 				return parseCharRange();
@@ -124,28 +126,30 @@ public class Parser {
 		return node;
 	}
 
-	private ASTNode parseConcatenation() throws ParsingException {
-		List<ASTNode> children = new ArrayList<>();
-		children.add(parseRepetition());
-		while (pos < input.length() && !isStopToken()) {
-			matches('.');
-			children.add(parseRepetition());
-		}
-		return children.size() == 1 ? children.getFirst() : new ConcatenationNode(children);
-	}
-
 	private ASTNode parseLookahead() throws ParsingException {
-		ASTNode node = parseConcatenation();
+		ASTNode node = parseRepetition();
 		if (matches('/')) {
-			node = new LookaheadNode(node, parseConcatenation());
+			insideLookahead = true;
+			node = new LookaheadNode(node, parseRepetition());
+			insideLookahead = false;
 		}
 		return node;
 	}
 
+	private ASTNode parseConcatenation() throws ParsingException {
+		List<ASTNode> children = new ArrayList<>();
+		children.add(parseLookahead());
+		while (pos < input.length() && notIsStopToken()) {
+			matches('.');
+			children.add(parseLookahead());
+		}
+		return children.size() == 1 ? children.getFirst() : new ConcatenationNode(children);
+	}
+
 	private ASTNode parseChoice() throws ParsingException {
-		ASTNode node = parseLookahead();
+		ASTNode node = parseConcatenation();
 		while (matches('|')) {
-			node = new ChoiceNode(node, parseLookahead());
+			node = new ChoiceNode(node, parseConcatenation());
 		}
 		return node;
 	}
