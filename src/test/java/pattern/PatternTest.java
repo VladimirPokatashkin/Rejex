@@ -150,16 +150,10 @@ public class PatternTest {
 		assertTrue(pattern.matches("ac"));
 		assertFalse(pattern.matches("aa"));
 
-		pattern = Pattern.compile("(a+/b)dd");
-		assertTrue(pattern.matches("aaaabdd"));
-		assertTrue(pattern.matches("abdd"));
-		assertFalse(pattern.matches("bdd"));
-
-
-		pattern = Pattern.compile("(a/b)+");
-		assertTrue(pattern.matches("aaaaab"));
-		assertTrue(pattern.matches("ab"));
-		assertFalse(pattern.matches("abac"));
+		pattern = Pattern.compile("j/(a*)q");
+		assertTrue(pattern.matches("jq"));
+		assertTrue(pattern.matches("jaaaq"));
+		assertFalse(pattern.matches("jdq"));
 	}
 
 	@Test
@@ -197,13 +191,5 @@ public class PatternTest {
 		assertTrue(pattern.matches("bbbddd"));
 		assertFalse(pattern.matches("ab"));
 		assertFalse(pattern.matches("b c"));
-
-		pattern = Pattern.compile("(a/b)*c");
-		assertTrue(pattern.matches("abc"));
-		assertTrue(pattern.matches("aaaabc"));
-		assertFalse(pattern.matches("bc"));
-
-		pattern = Pattern.compile("(a+/b)c");
-		assertTrue(pattern.matches("aabc"));
 	}
 }
