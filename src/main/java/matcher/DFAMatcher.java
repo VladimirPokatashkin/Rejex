@@ -23,4 +23,22 @@ public final class DFAMatcher implements Matcher {
 
 		return current.isAcceptable() ? new MatchResult(Map.of()) : new MatchResult();
 	}
+
+	@Override
+	public SearchResult search() {
+		for (int i = 0; i < input.length(); ++i) {
+			DFAState current = dfa.getBegin();
+			int lastAcceptableIndex = -1;
+
+			for (int j = i; j < input.length(); ++j) {
+				current = current.getNextState(input.charAt(j));
+
+				if (current == null) break;
+				if (current.isAcceptable()) lastAcceptableIndex = j;
+			}
+
+			if (lastAcceptableIndex != -1) return new SearchResult(null, i, lastAcceptableIndex + 1, true);
+		}
+		return new SearchResult();
+	}
 }

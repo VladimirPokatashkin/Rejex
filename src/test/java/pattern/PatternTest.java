@@ -121,13 +121,13 @@ public class PatternTest {
 	public void GroupTest() {
 		Pattern pattern = Pattern.compile("(a(bc)d)");
 		assertTrue(pattern.matches("abcd"));
-		assertEquals("abcd", pattern.getMatchResult().getGroupNumber(1));
-		assertEquals("bc", pattern.getMatchResult().getGroupNumber(2));
+		assertEquals("abcd", pattern.getMatchResult().group(1));
+		assertEquals("bc", pattern.getMatchResult().group(2));
 
 		pattern = Pattern.compile("((a|b)+)c");
 		assertTrue(pattern.matches("ababac"));
-		assertEquals("a", pattern.getMatchResult().getGroupNumber(2));
-		assertEquals("ababa", pattern.getMatchResult().getGroupNumber(1));
+		assertEquals("a", pattern.getMatchResult().group(2));
+		assertEquals("ababa", pattern.getMatchResult().group(1));
 	}
 
 	@Test

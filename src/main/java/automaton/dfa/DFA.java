@@ -172,7 +172,7 @@ public class DFA {
 				DFAState target = representative.getNextState(symbol);
 				if (target != null) {
 					var targetGroup = partitions.stream().filter(gr -> gr.contains(target)).findAny();
-					targetGroup.ifPresent(dfaStates -> state.addTransition(symbol, stateMap.get(dfaStates)));
+					targetGroup.ifPresent(states -> state.addTransition(symbol, stateMap.get(states)));
 				}
 			}
 		}

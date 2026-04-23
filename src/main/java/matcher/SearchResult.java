@@ -4,16 +4,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-public record MatchResult(
+public record SearchResult(
 		Map<Integer, String> groups,
+		int begin,
+		int end,
 		boolean isSuccess
 ) implements Iterable<String> {
-	public MatchResult() {
-		this(null, false);
-	}
-
-	public MatchResult(Map<Integer, String> groups) {
-		this(groups, true);
+	public SearchResult() {
+		this(null, -1, -1, false);
 	}
 
 	public String group(int num) {
