@@ -11,9 +11,9 @@ import java.util.*;
 @Getter
 public class DFA {
 	private final DFAState begin;
-	private final Set<DFAState> states;
+	private final List<DFAState> states;
 
-	private DFA(DFAState begin, Set<DFAState> states) {
+	private DFA(DFAState begin, List<DFAState> states) {
 		this.begin = begin;
 		this.states = states;
 	}
@@ -29,7 +29,7 @@ public class DFA {
 
 		Queue<DFAState> queue = new LinkedList<>();
 		Map<Set<Integer>, DFAState> discoveredStates = new HashMap<>();
-		Set<DFAState> states = new HashSet<>();
+		List<DFAState> states = new ArrayList<>();
 
 		DFAState.resetCounter();
 		DFAState begin = new DFAState(rootInfo.firstpos());
@@ -42,7 +42,7 @@ public class DFA {
 			if (current.getPositions().contains(endPos)) current.setAcceptable(true);
 
 			Map<Character, Set<Integer>> transitionsFromCurrent = new HashMap<>();
-			Set<Character> lookaheadTranstitions = new HashSet<>();
+			Set<Character> lookaheadTransitions = new HashSet<>();
 
 			for (int pos : current.getPositions()) {
 				if (pos == endPos || !followpos.containsKey(pos)) continue;
@@ -54,17 +54,17 @@ public class DFA {
 				if (node instanceof LiteralNode literal) {
 					transitionsFromCurrent.computeIfAbsent(literal.getValue(),
 							_ -> new HashSet<>()).addAll(nextPositions);
-					if (isLookaheadEnd) lookaheadTranstitions.add(literal.getValue());
+					if (isLookaheadEnd) lookaheadTransitions.add(literal.getValue());
 				} else if (node instanceof CharRangeNode range) {
 					range.getRanges().forEach(pair -> {
 						for (char c = pair.first; c <= pair.second; ++c) {
 							transitionsFromCurrent.computeIfAbsent(c, _ -> new HashSet<>()).addAll(nextPositions);
-							if (isLookaheadEnd) lookaheadTranstitions.add(c);
+							if (isLookaheadEnd) lookaheadTransitions.add(c);
 						}
 					});
 					range.getSingles().forEach(symbol -> {
 						transitionsFromCurrent.computeIfAbsent(symbol, _ -> new HashSet<>()).addAll(nextPositions);
-						if (isLookaheadEnd) lookaheadTranstitions.add(symbol);
+						if (isLookaheadEnd) lookaheadTransitions.add(symbol);
 					});
 				}
 			}
@@ -81,7 +81,7 @@ public class DFA {
 					return newState;
 				});
 
-				if (lookaheadTranstitions.contains(c)) {
+				if (lookaheadTransitions.contains(c)) {
 					state.setLookaheadBound(true);
 				}
 
@@ -182,6 +182,6 @@ public class DFA {
 			}
 		}
 
-		return new DFA(newBegin, new HashSet<>(stateMap.values()));
+		return new DFA(newBegin, new ArrayList<>(stateMap.values()));
 	}
 }

@@ -16,10 +16,9 @@ public class Pattern {
 		syntaxTree = new SyntaxTree(rejex);
 		if (syntaxTree.getGroupCnt() > 0) {
 			nfa = NFA.ofTree(syntaxTree);
-		} else {
-			dfa = DFA.ofTree(syntaxTree);
-			dfa = dfa.minimize();
 		}
+		dfa = DFA.ofTree(syntaxTree);
+		dfa = dfa.minimize();
 	}
 
 	public static Pattern compile(String rejex) {
@@ -28,13 +27,13 @@ public class Pattern {
 
 	public SearchResult search(String text, boolean withGroups) {
 		if (withGroups && nfa == null) {
-			throw new IllegalArgumentException("pattern doesn`t contains groups");
+			throw new IllegalArgumentException("pattern doesn`t contain groups");
 		} else if (withGroups) {
 			var matcher = new NFAMatcher(nfa, text);
 			return matcher.searchWithGroups();
+		} else {
+			var matcher = new DFAMatcher(dfa, text);
+			return matcher.search();
 		}
-
-		Matcher matcher = dfa == null ? new NFAMatcher(nfa, text) : new DFAMatcher(dfa, text);
-		return matcher.search();
 	}
 }
