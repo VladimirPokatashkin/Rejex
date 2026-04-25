@@ -24,7 +24,7 @@ public class DFAState {
 
 	public DFAState(Set<Integer> positions) {
 		id = counter++;
-		this.positions = Collections.unmodifiableSet(positions);
+		this.positions = positions.isEmpty() ? Set.of(this.id) : Collections.unmodifiableSet(positions);
 	}
 
 	public void addTransition(char c, DFAState dest) {

@@ -15,7 +15,7 @@ public class SyntaxTree {
 	public SyntaxTree(String expression) throws ParsingException {
 		var parser = Parser.of(expression);
 		root = parser.parse();
-		root = new ConcatenationNode(List.of(root, new EndNode()));
+		root = root instanceof EndNode ? root : new ConcatenationNode(List.of(root, new EndNode()));
 		groupCnt = parser.getGroupCnt();
 	}
 }

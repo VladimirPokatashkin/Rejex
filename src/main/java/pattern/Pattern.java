@@ -30,10 +30,19 @@ public class Pattern {
 			throw new IllegalArgumentException("pattern doesn`t contain groups");
 		} else if (withGroups) {
 			var matcher = new NFAMatcher(nfa, text);
-			return matcher.searchWithGroups();
+			return matcher.search();
 		} else {
 			var matcher = new DFAMatcher(dfa, text);
 			return matcher.search();
 		}
 	}
+
+	public Pattern difference(Pattern other) {
+		Pattern res = compile("");
+		res.dfa = this.dfa.difference(other.dfa);
+		res.nfa = null;
+		return res;
+	}
+
+
 }
