@@ -50,6 +50,8 @@ public class Parser {
 	}
 
 	private ASTNode parseLiteral() throws ParsingException {
+		if (peek() == '\0') return new EndNode();
+
 		char c = next();
 
 		switch (c) {
