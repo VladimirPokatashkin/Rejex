@@ -9,18 +9,20 @@ import java.nio.file.Path;
 public class Main {
 	public static void main(String[] args) {
 		Path root = Path.of(System.getProperty("user.dir"));
-		Pattern pattern = Pattern.compile("ab*");
+		Pattern emails = Pattern.compile("[a-c]+@[a-c]+%.[a-c]+");
+		Pattern gmail = Pattern.compile("[a-c]+@a%.abc");
+		Pattern diff = emails.difference(gmail);
 
 		try {
 			Files.write(root.resolve("src/main/resources/graphviz/syntaxtree.dot"),
-				DotMaker.ASTtoDotString(pattern.getSyntaxTree()).getBytes());
+				DotMaker.ASTtoDotString(diff.getSyntaxTree()).getBytes());
 
 			Files.write(root.resolve("src/main/resources/graphviz/dfa.dot"),
-					DotMaker.DFAtoDotString(pattern.getDfa()).getBytes());
+					DotMaker.DFAtoDotString(diff.getDfa()).getBytes());
 
-			if (pattern.getNfa() != null) {
+			if (diff.getNfa() != null) {
 				Files.write(root.resolve("src/main/resources/graphviz/nfa.dot"),
-						DotMaker.NFAtoDotString(pattern.getNfa()).getBytes());
+						DotMaker.NFAtoDotString(diff.getNfa()).getBytes());
 			}
 
 			DotMaker.visualizeAll(root.resolve("src/main/resources/graphviz/"));
@@ -29,11 +31,11 @@ public class Main {
 			System.err.println(ex.getMessage());
 		}
 
-		if (pattern.search("xabx", false).isSuccess()) {
+		if (diff.search("xab@a.abcx", false).isSuccess()) {
 			System.out.println("goida!1!1!");
 		} else {
 			System.out.println("ne goida(((");
 		}
-		System.out.println("decompiled expression: \"" + Decompiler.decompile(pattern.getDfa()) + "\"");
+		System.out.println("decompiled expression: \"" + Decompiler.decompile(diff.getDfa()) + "\"");
 	}
 }

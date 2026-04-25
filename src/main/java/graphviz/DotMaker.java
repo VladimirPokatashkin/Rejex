@@ -19,24 +19,30 @@ import java.util.stream.Stream;
 public class DotMaker {
 	public static void visualizeAll(Path pathToDots) {
 		try (Stream<Path> files = Files.list(pathToDots)) {
-			files.filter(file -> file.endsWith(".dot")).forEach(file -> {
-				String png = file.toString().replaceAll("dot", "png");
-				var pb = new ProcessBuilder("dot", "-Tpng", file.toString(), "-o", png);
-				pb.redirectErrorStream(true);
+			files.filter(file -> file.getFileName().toString().endsWith(".dot"))
+					.forEach(file -> {
+						String fileName = file.getFileName().toString();
+						String pngName = fileName.replace(".dot", ".png");
+						Path pngPath = file.resolveSibling(pngName);
 
-				try {
-					Process p = pb.start();
-					String error = Arrays.toString(p.getInputStream().readAllBytes());
-					int exitCode = p.waitFor();
+						var pb = new ProcessBuilder("dot", "-Tpng",
+								file.toString(), "-o", pngPath.toString());
+						pb.redirectErrorStream(true);
 
-					if (exitCode != 0) {
-						throw new IOException("graphviz error: " + error);
-					}
+						try {
+							Process p = pb.start();
+							String error = new String(p.getInputStream().readAllBytes());
+							int exitCode = p.waitFor();
 
-				} catch (InterruptedException | IOException _) {}
-
-			});
-		} catch (Exception e) {
+							if (exitCode != 0) {
+								throw new IOException("graphviz error with " + fileName + ": " + error);
+							}
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+							throw new RuntimeException("Interrupted while processing " + fileName, e);
+						} catch (IOException _) {}
+					});
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
