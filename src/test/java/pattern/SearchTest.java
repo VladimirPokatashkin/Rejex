@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import matcher.SearchResult;
 
-public class PatternTest {
+public class SearchTest {
 	@Test
 	public void concatenationDotTest() {
 		Pattern pattern = Pattern.compile("a.b");
