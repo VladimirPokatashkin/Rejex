@@ -8,10 +8,39 @@ import other.Pair;
 import syntaxtree.SyntaxTree;
 import syntaxtree.nodes.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DotMaker {
+	public static void visualizeAll(Path pathToDots) {
+		try (Stream<Path> files = Files.list(pathToDots)) {
+			files.filter(file -> file.endsWith(".dot")).forEach(file -> {
+				String png = file.toString().replaceAll("dot", "png");
+				var pb = new ProcessBuilder("dot", "-Tpng", file.toString(), "-o", png);
+				pb.redirectErrorStream(true);
+
+				try {
+					Process p = pb.start();
+					String error = Arrays.toString(p.getInputStream().readAllBytes());
+					int exitCode = p.waitFor();
+
+					if (exitCode != 0) {
+						throw new IOException("graphviz error: " + error);
+					}
+
+				} catch (InterruptedException | IOException _) {}
+
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static String NFAtoDotString(NFA nfa) {
 		var begin = nfa.getBegin();
 		var end = nfa.getEnd();
