@@ -6,10 +6,11 @@ import automaton.nfa.NFAState;
 
 import java.util.*;
 
-public final class NFAMatcher implements Matcher {
+public class NFAMatcher {
 	private final NFA nfa;
 	private final String input;
 	private final Map<Integer, GroupInfo> groups;
+
 
 	public NFAMatcher(NFA nfa, String input) {
 		this.nfa = nfa;
@@ -17,7 +18,7 @@ public final class NFAMatcher implements Matcher {
 		this.groups = new HashMap<>();
 	}
 
-	public SearchResult searchWithGroups() {
+	public SearchResult search() {
 		for (int i = 0; i < input.length(); ++i) {
 			groups.clear();
 
@@ -34,15 +35,6 @@ public final class NFAMatcher implements Matcher {
 				}
 			});
 			return new SearchResult(groupMap, i, finish, true);
-		}
-		return new SearchResult();
-	}
-
-	@Override
-	public SearchResult search() {
-		for (int i = 0; i < input.length(); ++i) {
-			int end = backtrackSearch(nfa.getBegin(), i , new HashSet<>());
-			if (end != -1) return new SearchResult(null, i, end, true);
 		}
 		return new SearchResult();
 	}

@@ -5,12 +5,16 @@ import automaton.dfa.DFAState;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DFAMatcher implements Matcher {
+public class DFAMatcher {
 	private final DFA dfa;
 	private final String input;
 
-	@Override
+
 	public SearchResult search() {
+		if (input.isEmpty())
+			return dfa.getBegin().isAcceptable() ? new SearchResult(null, 0, 0, true)
+					: new SearchResult();
+
 		for (int i = 0; i < input.length(); ++i) {
 			DFAState current = dfa.getBegin();
 
