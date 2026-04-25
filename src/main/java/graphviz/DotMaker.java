@@ -146,7 +146,7 @@ public class DotMaker {
 				sb.append("    ").append(state.getId())
 						.append(" [shape=doublecircle];\n");
 			}
-			if (state.isLookaheadEnd()) {
+			if (state.isLookaheadBound()) {
 				sb.append("    ").append(state.getId())
 						.append(" [color=blue, peripheries=2];\n");
 			}

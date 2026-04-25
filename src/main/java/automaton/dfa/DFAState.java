@@ -15,7 +15,7 @@ public class DFAState {
 	private boolean isAcceptable = false;
 	@Setter
 	@EqualsAndHashCode.Exclude
-	private boolean isLookaheadEnd = false;
+	private boolean isLookaheadBound = false;
 	@EqualsAndHashCode.Exclude
 	private final int id;
 	@EqualsAndHashCode.Exclude

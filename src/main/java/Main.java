@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class Main {
 	public static void main(String[] args) {
 		Path root = Path.of(System.getProperty("user.dir"));
-		Pattern pattern = Pattern.compile("(a/(b)b)+");
+		Pattern pattern = Pattern.compile("(ab)*");
 
 		try {
 			Files.write(root.resolve("src/main/resources/graphviz/syntaxtree.dot"),
@@ -19,7 +19,7 @@ public class Main {
 			System.err.println("it`s over(((");
 		}
 
-		if (pattern.matches("ababab")) {
+		if (pattern.search("xabx", false).isSuccess()) {
 			System.out.println("goida!1!1!");
 		} else {
 			System.out.println("ne goida(((");

@@ -42,25 +42,30 @@ public class DFA {
 			if (current.getPositions().contains(endPos)) current.setAcceptable(true);
 
 			Map<Character, Set<Integer>> transitionsFromCurrent = new HashMap<>();
+			Set<Character> lookaheadTranstitions = new HashSet<>();
 
 			for (int pos : current.getPositions()) {
 				if (pos == endPos || !followpos.containsKey(pos)) continue;
 
 				Set<Integer> nextPositions = followpos.get(pos);
 				ASTNode node = positionMap.get(pos);
+				boolean isLookaheadEnd = lookaheadEnds.contains(pos);
 
 				if (node instanceof LiteralNode literal) {
 					transitionsFromCurrent.computeIfAbsent(literal.getValue(),
 							_ -> new HashSet<>()).addAll(nextPositions);
+					if (isLookaheadEnd) lookaheadTranstitions.add(literal.getValue());
 				} else if (node instanceof CharRangeNode range) {
 					range.getRanges().forEach(pair -> {
 						for (char c = pair.first; c <= pair.second; ++c) {
 							transitionsFromCurrent.computeIfAbsent(c, _ -> new HashSet<>()).addAll(nextPositions);
+							if (isLookaheadEnd) lookaheadTranstitions.add(c);
 						}
 					});
-					range.getSingles().forEach(symbol ->
-						transitionsFromCurrent.computeIfAbsent(symbol, _ -> new HashSet<>()).addAll(nextPositions)
-					);
+					range.getSingles().forEach(symbol -> {
+						transitionsFromCurrent.computeIfAbsent(symbol, _ -> new HashSet<>()).addAll(nextPositions);
+						if (isLookaheadEnd) lookaheadTranstitions.add(symbol);
+					});
 				}
 			}
 
@@ -76,7 +81,9 @@ public class DFA {
 					return newState;
 				});
 
-				if (targetPositions.stream().anyMatch(lookaheadEnds::contains)) state.setLookaheadEnd(true);
+				if (lookaheadTranstitions.contains(c)) {
+					state.setLookaheadBound(true);
+				}
 
 				current.addTransition(c, state);
 			}
@@ -88,16 +95,13 @@ public class DFA {
 	public DFA minimize() {
 		Set<Character> alphabet = getAlphabet();
 
-		Set<DFAState> acceptableStates = new HashSet<>();
-		Set<DFAState> nonAcceptableStates = new HashSet<>();
+		Map<List<Boolean>, Set<DFAState>> initialPartitions = new HashMap<>();
 		states.forEach(state -> {
-			if (state.isAcceptable()) acceptableStates.add(state);
-			else nonAcceptableStates.add(state);
+			List<Boolean> signature = List.of(state.isAcceptable(), state.isLookaheadBound());
+			initialPartitions.computeIfAbsent(signature, _ -> new HashSet<>()).add(state);
 		});
 
-		List<Set<DFAState>> partitions = new ArrayList<>();
-		if (!acceptableStates.isEmpty()) partitions.add(acceptableStates);
-		if (!nonAcceptableStates.isEmpty()) partitions.add(nonAcceptableStates);
+		List<Set<DFAState>> partitions = new ArrayList<>(initialPartitions.values());
 
 		boolean splited = true;
 		while (splited) {
@@ -159,6 +163,7 @@ public class DFA {
 
 			DFAState newState = new DFAState(newPositions);
 			newState.setAcceptable(representative.isAcceptable());
+			newState.setLookaheadBound(representative.isLookaheadBound());
 			stateMap.put(group, newState);
 
 			if (group.contains(oldBegin)) newBegin = newState;

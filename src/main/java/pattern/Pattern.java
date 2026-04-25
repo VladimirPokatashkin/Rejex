@@ -11,7 +11,6 @@ public class Pattern {
 	private NFA nfa;
 	private DFA dfa;
 	private final SyntaxTree syntaxTree;
-	private MatchResult matchResult;
 
 	public Pattern(String rejex) {
 		syntaxTree = new SyntaxTree(rejex);
@@ -25,12 +24,6 @@ public class Pattern {
 
 	public static Pattern compile(String rejex) {
 		return new Pattern(rejex);
-	}
-
-	public boolean matches(String text) {
-		Matcher matcher = dfa == null ? new NFAMatcher(nfa, text) : new DFAMatcher(dfa, text);
-		matchResult = matcher.match();
-		return matchResult.isSuccess();
 	}
 
 	public SearchResult search(String text, boolean withGroups) {

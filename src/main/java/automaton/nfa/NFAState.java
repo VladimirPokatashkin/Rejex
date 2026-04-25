@@ -11,12 +11,12 @@ import java.util.Map;
 @Getter
 public class NFAState {
 	private static int counter = 0;
-	private int id;
+	private final int id;
 	@Setter
 	private boolean isAcceptable;
-	private Map<Integer, Boolean> groupMap;
-	private Map<Character, List<NFAState>> transitions;
-	private List<NFAState> epsilons;
+	private final Map<Integer, Boolean> groupMap;
+	private final Map<Character, List<NFAState>> transitions;
+	private final List<NFAState> epsilons;
 	@Setter
 	private NFA lookahead;
 
