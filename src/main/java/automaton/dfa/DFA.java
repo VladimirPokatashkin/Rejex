@@ -132,7 +132,7 @@ public class DFA {
 			partitions = newPartitions;
 		}
 
-		return rebuild(begin, partitions, alphabet);
+		return rebuild(begin, partitions);
 	}
 
 
@@ -150,7 +150,7 @@ public class DFA {
 		return alphabet;
 	}
 
-	private static DFA rebuild(DFAState oldBegin, List<Set<DFAState>> partitions, Set<Character> alphabet) {
+	private static DFA rebuild(DFAState oldBegin, List<Set<DFAState>> partitions) {
 		Map<Set<DFAState>, DFAState> stateMap = new HashMap<>();
 		DFAState newBegin = null;
 		DFAState.resetCounter();
@@ -158,10 +158,7 @@ public class DFA {
 		for (var group : partitions) {
 			DFAState representative = group.iterator().next();
 
-			Set<Integer> newPositions = new HashSet<>();
-			group.forEach(state -> newPositions.addAll(state.getPositions()));
-
-			DFAState newState = new DFAState(newPositions);
+			DFAState newState = new DFAState();
 			newState.setAcceptable(representative.isAcceptable());
 			newState.setLookaheadBound(representative.isLookaheadBound());
 			stateMap.put(group, newState);
@@ -173,13 +170,10 @@ public class DFA {
 			DFAState state = stateMap.get(group);
 			DFAState representative = group.iterator().next();
 
-			for (char symbol : alphabet) {
-				DFAState target = representative.getNextState(symbol);
-				if (target != null) {
-					var targetGroup = partitions.stream().filter(gr -> gr.contains(target)).findAny();
-					targetGroup.ifPresent(states -> state.addTransition(symbol, stateMap.get(states)));
-				}
-			}
+			representative.getTransitions().forEach((symbol, target) -> {
+				var targetGroup = partitions.stream().filter(gr -> gr.contains(target)).findAny();
+				targetGroup.ifPresent(states -> state.addTransition(symbol, stateMap.get(states)));
+			});
 		}
 
 		return new DFA(newBegin, new ArrayList<>(stateMap.values()));
@@ -225,7 +219,7 @@ public class DFA {
 				currentNewState.addTransition(symbol, nextNewState);
 			}
 		}
-		return new DFA(newBegin, new ArrayList<>(newStateMap.values()));
+		return new DFA(newBegin, new ArrayList<>(newStateMap.values())).minimize();
 	}
 
 	public DFA intersection(DFA other) {
@@ -268,6 +262,6 @@ public class DFA {
 				currentNewState.addTransition(symbol, nextNewState);
 			}
 		}
-		return new DFA(newBegin, new ArrayList<>(newStateMap.values()));
+		return new DFA(newBegin, new ArrayList<>(newStateMap.values())).minimize();
 	}
 }
