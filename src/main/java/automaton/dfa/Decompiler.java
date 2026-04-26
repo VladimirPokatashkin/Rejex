@@ -12,7 +12,11 @@ public class Decompiler {
 
 	private static String buildInitial(List<String> chars, boolean isTheSameState) {
 		String base = EMPTY_SET;
-		if (!chars.isEmpty()) base = String.join("|", chars);
+
+		for (String c : chars) {
+			base = formatChoice(base, c);
+		}
+
 		if (isTheSameState) return formatChoice(base, EMPTY_STRING);
 		return base;
 	}
@@ -21,6 +25,11 @@ public class Decompiler {
 		if (a.equals(EMPTY_SET)) return b;
 		if (b.equals(EMPTY_SET)) return a;
 		if (a.equals(b)) return a;
+
+		if (a.startsWith("/") && b.startsWith("/")) {
+			return "/" + formatChoice(a.substring(1), b.substring(1));
+		}
+
 		return "(" + a + "|" + b + ")";
 	}
 
@@ -29,8 +38,8 @@ public class Decompiler {
 		if (a.equals(EMPTY_STRING)) return b;
 		if (b.equals(EMPTY_STRING)) return a;
 
-		boolean aIsComplex = a.length() > 1 && !a.startsWith("(");
-		boolean bIsComplex = b.length() > 1 && !b.startsWith("(");
+		boolean aIsComplex = a.length() > 1 && !a.startsWith("(") && !a.contains("/");
+		boolean bIsComplex = b.length() > 1 && !b.startsWith("(") && !b.startsWith("/");
 
 		String left  = aIsComplex ? "(" + a + ")" : a;
 		String right = bIsComplex ? "(" + b + ")" : b;
@@ -40,6 +49,7 @@ public class Decompiler {
 	private static String formatStar(String a) {
 		if (a.equals(EMPTY_SET) || a.equals(EMPTY_STRING)) return EMPTY_STRING;
 		if (a.endsWith("*") && !a.contains("|")) return a;
+		if (a.startsWith("/")) return '/' + formatStar(a.substring(1));
 		return a.length() > 1 ? "(" + a + ")*" : a + "*";
 	}
 
@@ -64,6 +74,7 @@ public class Decompiler {
 				stateI.getTransitions().forEach((symbol, state) -> {
 					if (state.equals(stateJ)) {
 						String str = isMeta(symbol) ? "%" + symbol : String.valueOf(symbol);
+						if (stateI.isLookaheadBound()) str = '/' + str;
 						transitions.add(str);
 					}
 				});
@@ -88,7 +99,7 @@ public class Decompiler {
 		}
 
 		int beginIndex = indexMap.get(dfa.getBegin());
-		String res = "∅";
+		String res = EMPTY_SET;
 
 		for (int i = 0; i < statesCnt; ++i) {
 			if (states.get(i).isAcceptable()) {
