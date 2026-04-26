@@ -1,6 +1,7 @@
 package pattern;
 
 import automaton.dfa.DFA;
+import automaton.dfa.Decompiler;
 import lombok.Getter;
 import matcher.*;
 import automaton.nfa.NFA;
@@ -23,6 +24,14 @@ public class Pattern {
 
 	public static Pattern compile(String rejex) {
 		return new Pattern(rejex);
+	}
+
+	public String decompile() {
+		return Decompiler.decompile(dfa);
+	}
+
+	public SearchResult search(String text) {
+		return search(text, false);
 	}
 
 	public SearchResult search(String text, boolean withGroups) {

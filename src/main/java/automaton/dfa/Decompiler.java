@@ -20,7 +20,7 @@ public class Decompiler {
 	private static String formatChoice(String a, String b) {
 		if (a.equals(EMPTY_SET)) return b;
 		if (b.equals(EMPTY_SET)) return a;
-		if (a.equals(EMPTY_STRING) && b.equals(EMPTY_STRING)) return EMPTY_STRING;
+		if (a.equals(b)) return a;
 		return "(" + a + "|" + b + ")";
 	}
 
@@ -62,7 +62,10 @@ public class Decompiler {
 
 				List<String> transitions = new ArrayList<>();
 				stateI.getTransitions().forEach((symbol, state) -> {
-					if (state.equals(stateJ)) transitions.add(String.valueOf(symbol));
+					if (state.equals(stateJ)) {
+						String str = isMeta(symbol) ? "%" + symbol : String.valueOf(symbol);
+						transitions.add(str);
+					}
 				});
 
 				R[0][i][j] = buildInitial(transitions, i == j);
@@ -85,7 +88,7 @@ public class Decompiler {
 		}
 
 		int beginIndex = indexMap.get(dfa.getBegin());
-		String res = "";
+		String res = "∅";
 
 		for (int i = 0; i < statesCnt; ++i) {
 			if (states.get(i).isAcceptable()) {
@@ -94,5 +97,10 @@ public class Decompiler {
 		}
 
 		return res;
+	}
+
+	private static boolean isMeta(char c) {
+		return c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')' || c == '$'
+				|| c == '%' || c == '.' || c == '*' || c == '+' || c == '…' || c == '|' || c == '/' || c == '-';
 	}
 }
