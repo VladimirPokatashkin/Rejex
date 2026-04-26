@@ -63,4 +63,17 @@ public class DecompilerTest {
 		Pattern copy = Pattern.compile(decompiled);
 		assertTrue(copy.search("aboba[java]{8}$%.|aboba").isSuccess());
 	}
+
+	@Test
+	void lookaheadOperatorTest() {
+		Pattern source = Pattern.compile("a/b");
+		String decompiled = source.decompile();
+		Pattern copy = Pattern.compile(decompiled);
+		assertTrue(copy.search("abc").isSuccess());
+
+		source = Pattern.compile("[a-z]/[123]");
+		decompiled = source.decompile();
+		copy = Pattern.compile(decompiled);
+		assertEquals(9, copy.search("jjjjaboba123").end());
+	}
 }
