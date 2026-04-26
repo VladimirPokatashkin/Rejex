@@ -53,5 +53,10 @@ public class Pattern {
 		return res;
 	}
 
-
+	public Pattern intersection(Pattern other) {
+		Pattern res = compile("");
+		res.dfa = this.dfa.intersection(other.dfa);
+		res.nfa = null;
+		return res;
+	}
 }

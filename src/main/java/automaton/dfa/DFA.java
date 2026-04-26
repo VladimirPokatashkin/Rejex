@@ -193,17 +193,16 @@ public class DFA {
 
 		DFAState.resetCounter();
 
-		var newBegin = new DFAState(Set.of());
+		var newBegin = new DFAState();
 		newBegin.setAcceptable(this.begin.isAcceptable() && !other.begin.isAcceptable());
 		newBegin.setLookaheadBound(this.begin.isLookaheadBound());
 
-		StatePair initial = new StatePair(this.begin, other.begin);
+		var initial = new StatePair(this.begin, other.begin);
 		newStateMap.put(initial, newBegin);
 		queue.add(initial);
 
 		while (!queue.isEmpty()) {
 			StatePair currentPair = queue.poll();
-			DFAState currentNewState = newStateMap.get(currentPair);
 
 			for (var entry : currentPair.a.getTransitions().entrySet()) {
 				char symbol = entry.getKey();
@@ -214,7 +213,7 @@ public class DFA {
 
 				DFAState nextNewState = newStateMap.get(nextPair);
 				if (nextNewState == null) {
-					nextNewState = new DFAState(Set.of());
+					nextNewState = new DFAState();
 
 					nextNewState.setAcceptable(nextA.isAcceptable() && (nextB == null || !nextB.isAcceptable()));
 					nextNewState.setLookaheadBound(nextA.isLookaheadBound());
@@ -222,6 +221,50 @@ public class DFA {
 					newStateMap.put(nextPair, nextNewState);
 					queue.add(nextPair);
 				}
+				DFAState currentNewState = newStateMap.get(currentPair);
+				currentNewState.addTransition(symbol, nextNewState);
+			}
+		}
+		return new DFA(newBegin, new ArrayList<>(newStateMap.values()));
+	}
+
+	public DFA intersection(DFA other) {
+		record StatePair(DFAState a, DFAState b) {}
+
+		Map<StatePair, DFAState> newStateMap = new HashMap<>();
+		Queue<StatePair> queue = new LinkedList<>();
+
+		DFAState.resetCounter();
+
+		var newBegin = new DFAState();
+		newBegin.setAcceptable(this.begin.isAcceptable() && other.begin.isAcceptable());
+		newBegin.setLookaheadBound(this.begin.isLookaheadBound() || other.begin.isLookaheadBound());
+
+		var initial = new StatePair(this.begin, other.begin);
+		newStateMap.put(initial, newBegin);
+		queue.add(initial);
+
+		while (!queue.isEmpty()) {
+			StatePair currentPair = queue.poll();
+
+			for (var entry : currentPair.a.getTransitions().entrySet()) {
+				char symbol = entry.getKey();
+				DFAState nextA = entry.getValue();
+				DFAState nextB = currentPair.b.getNextState(symbol);
+				if (nextB == null) continue;
+
+				var nextPair = new StatePair(nextA, nextB);
+				DFAState nextNewState = newStateMap.get(nextPair);
+				if (nextNewState == null) {
+					nextNewState = new DFAState();
+
+					nextNewState.setAcceptable(nextA.isAcceptable() && nextB.isAcceptable());
+					nextNewState.setLookaheadBound(nextA.isLookaheadBound() || nextB.isLookaheadBound());
+
+					newStateMap.put(nextPair, nextNewState);
+					queue.add(nextPair);
+				}
+				DFAState currentNewState = newStateMap.get(currentPair);
 				currentNewState.addTransition(symbol, nextNewState);
 			}
 		}
