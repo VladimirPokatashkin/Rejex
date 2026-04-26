@@ -1,6 +1,4 @@
-package automaton.dfa;
-
-import pattern.Pattern;
+package pattern;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

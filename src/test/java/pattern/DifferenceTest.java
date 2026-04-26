@@ -146,7 +146,17 @@ class DifferenceTest {
 	}
 
 	@Test
-	void testDifferenceComplexWithRepetitions() {
+	void lookaheadDifferenceTest() {
+		Pattern a = Pattern.compile("[a-z]/[123]");
+		Pattern b = Pattern.compile("[a-z]/3");
+		Pattern diff = a.difference(b);
+
+		assertTrue(diff.search("aboba23").isSuccess());
+		assertFalse(diff.search("aboba3").isSuccess());
+	}
+
+	@Test
+	void differenceComplexWithRepetitionsTest() {
 		Pattern hasA = Pattern.compile("[ab]*ab[ab]*");
 		Pattern endsWithB = Pattern.compile("[ab]*b");
 		Pattern diff = hasA.difference(endsWithB);
