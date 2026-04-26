@@ -84,9 +84,7 @@ public class NFAMatcher {
 			if (isBegin) {
 				groups.put(index, new GroupInfo(index, currentPos));
 			} else {
-				if (groups.containsKey(index)) {
-					groups.get(index).setEnd(currentPos - 1);
-				}
+				groups.get(index).setEnd(currentPos - 1);
 			}
 		}
 
