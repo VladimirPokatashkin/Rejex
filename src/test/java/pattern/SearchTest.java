@@ -64,8 +64,8 @@ public class SearchTest {
 		pattern = Pattern.compile("(ab)*");
 		result = pattern.search("xyz", false);
 		assertTrue(result.isSuccess());
-		assertEquals(0, result.begin());
-		assertEquals(0, result.end());
+		assertEquals(1, result.begin());
+		assertEquals(1, result.end());
 
 		result = pattern.search("ababab", false);
 		assertTrue(result.isSuccess());
@@ -98,8 +98,8 @@ public class SearchTest {
 		pattern = Pattern.compile("(ab)*");
 		result = pattern.search("xyz", false);
 		assertTrue(result.isSuccess());
-		assertEquals(0, result.begin());
-		assertEquals(0, result.end());
+		assertEquals(1, result.begin());
+		assertEquals(1, result.end());
 
 		result = pattern.search("ababab", false);
 		assertTrue(result.isSuccess());
