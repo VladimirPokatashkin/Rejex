@@ -1,6 +1,7 @@
 package automaton.dfa;
 
 import lombok.Getter;
+import other.Pair;
 import syntaxtree.SyntaxTree;
 import syntaxtree.nodes.ASTNode;
 import syntaxtree.nodes.CharRangeNode;
@@ -109,7 +110,7 @@ public class DFA {
 			List<Set<DFAState>> newPartitions = new ArrayList<>();
 
 			for (var group : partitions) {
-				if (group.size() <= 1) {
+				if (group.size() == 1) {
 					newPartitions.add(group);
 					continue;
 				}
@@ -180,10 +181,8 @@ public class DFA {
 	}
 
 	public DFA difference(DFA other) {
-		record StatePair(DFAState a, DFAState b) {}
-
-		Map<StatePair, DFAState> newStateMap = new HashMap<>();
-		Queue<StatePair> queue = new LinkedList<>();
+		Map<Pair<DFAState, DFAState>, DFAState> newStateMap = new HashMap<>();
+		Queue<Pair<DFAState, DFAState>> queue = new LinkedList<>();
 
 		DFAState.resetCounter();
 
@@ -191,19 +190,19 @@ public class DFA {
 		newBegin.setAcceptable(this.begin.isAcceptable() && !other.begin.isAcceptable());
 		newBegin.setLookaheadBound(this.begin.isLookaheadBound());
 
-		var initial = new StatePair(this.begin, other.begin);
+		var initial = new Pair<>(this.begin, other.begin);
 		newStateMap.put(initial, newBegin);
 		queue.add(initial);
 
 		while (!queue.isEmpty()) {
-			StatePair currentPair = queue.poll();
+			Pair<DFAState, DFAState> currentPair = queue.poll();
 
-			for (var entry : currentPair.a.getTransitions().entrySet()) {
+			for (var entry : currentPair.first.getTransitions().entrySet()) {
 				char symbol = entry.getKey();
 				DFAState nextA = entry.getValue();
 
-				DFAState nextB = currentPair.b == null ? null : currentPair.b.getNextState(symbol);
-				var nextPair = new StatePair(nextA, nextB);
+				DFAState nextB = currentPair.second == null ? null : currentPair.second.getNextState(symbol);
+				var nextPair = new Pair<>(nextA, nextB);
 
 				DFAState nextNewState = newStateMap.get(nextPair);
 				if (nextNewState == null) {
@@ -223,10 +222,8 @@ public class DFA {
 	}
 
 	public DFA intersection(DFA other) {
-		record StatePair(DFAState a, DFAState b) {}
-
-		Map<StatePair, DFAState> newStateMap = new HashMap<>();
-		Queue<StatePair> queue = new LinkedList<>();
+		Map<Pair<DFAState, DFAState>, DFAState> newStateMap = new HashMap<>();
+		Queue<Pair<DFAState, DFAState>> queue = new LinkedList<>();
 
 		DFAState.resetCounter();
 
@@ -234,20 +231,20 @@ public class DFA {
 		newBegin.setAcceptable(this.begin.isAcceptable() && other.begin.isAcceptable());
 		newBegin.setLookaheadBound(this.begin.isLookaheadBound() || other.begin.isLookaheadBound());
 
-		var initial = new StatePair(this.begin, other.begin);
+		var initial = new Pair<>(this.begin, other.begin);
 		newStateMap.put(initial, newBegin);
 		queue.add(initial);
 
 		while (!queue.isEmpty()) {
-			StatePair currentPair = queue.poll();
+			Pair<DFAState, DFAState> currentPair = queue.poll();
 
-			for (var entry : currentPair.a.getTransitions().entrySet()) {
+			for (var entry : currentPair.first.getTransitions().entrySet()) {
 				char symbol = entry.getKey();
 				DFAState nextA = entry.getValue();
-				DFAState nextB = currentPair.b.getNextState(symbol);
+				DFAState nextB = currentPair.second.getNextState(symbol);
 				if (nextB == null) continue;
 
-				var nextPair = new StatePair(nextA, nextB);
+				var nextPair = new Pair<>(nextA, nextB);
 				DFAState nextNewState = newStateMap.get(nextPair);
 				if (nextNewState == null) {
 					nextNewState = new DFAState();
@@ -263,5 +260,36 @@ public class DFA {
 			}
 		}
 		return new DFA(newBegin, new ArrayList<>(newStateMap.values())).minimize();
+	}
+
+	public boolean isIsomorphicTo(DFA other) {
+		if (!this.getAlphabet().equals(other.getAlphabet())) return false;
+
+		Queue<Pair<DFAState, DFAState>> queue = new LinkedList<>();
+		Map<DFAState, DFAState> visited = new HashMap<>();
+		queue.add(new Pair<>(this.begin, other.begin));
+		visited.put(this.begin, other.begin);
+
+		while (!queue.isEmpty()) {
+			var pair = queue.poll();
+
+			if (pair.first.isAcceptable() != pair.second.isAcceptable()) return false;
+
+			for (var entry : pair.first.getTransitions().entrySet()) {
+				DFAState firstNext = entry.getValue();
+				DFAState secondNext = pair.second.getNextState(entry.getKey());
+
+				if (secondNext == null) return false;
+
+				if (visited.containsKey(firstNext)) {
+					if (!visited.get(firstNext).equals(secondNext)) return false;
+				} else {
+					visited.put(firstNext, secondNext);
+					queue.add(new Pair<>(firstNext, secondNext));
+				}
+			}
+		}
+
+		return true;
 	}
 }

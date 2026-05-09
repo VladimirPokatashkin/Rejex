@@ -53,6 +53,11 @@ public class Decompiler {
 		return a.length() > 1 ? "(" + a + ")*" : a + "*";
 	}
 
+	private static boolean isMeta(char c) {
+		return c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')' || c == '$'
+				|| c == '%' || c == '.' || c == '*' || c == '+' || c == '…' || c == '|' || c == '/' || c == '-';
+	}
+
 
 	public static String decompile(DFA dfa) {
 		List<DFAState> states = dfa.getStates();
@@ -108,10 +113,5 @@ public class Decompiler {
 		}
 
 		return res;
-	}
-
-	private static boolean isMeta(char c) {
-		return c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')' || c == '$'
-				|| c == '%' || c == '.' || c == '*' || c == '+' || c == '…' || c == '|' || c == '/' || c == '-';
 	}
 }
