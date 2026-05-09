@@ -1,4 +1,4 @@
-package matcher;
+package searcher;
 
 import automaton.nfa.GroupInfo;
 import automaton.nfa.NFA;
@@ -6,13 +6,13 @@ import automaton.nfa.NFAState;
 
 import java.util.*;
 
-public class NFAMatcher {
+public class NFASearcher {
 	private final NFA nfa;
 	private final String input;
 	private final Map<Integer, GroupInfo> groups;
 
 
-	public NFAMatcher(NFA nfa, String input) {
+	public NFASearcher(NFA nfa, String input) {
 		this.nfa = nfa;
 		this.input = input;
 		this.groups = new HashMap<>();
@@ -65,7 +65,7 @@ public class NFAMatcher {
 
 	private int backtrackSearch(NFAState state, int currentPos, Set<NFAState> visitedEpsilons) {
 		if (state.getLookahead() != null) {
-			NFAMatcher lookaheadMatcher = new NFAMatcher(state.getLookahead(), input.substring(currentPos));
+			NFASearcher lookaheadMatcher = new NFASearcher(state.getLookahead(), input.substring(currentPos));
 			if (!lookaheadMatcher.matchForLookahead()) return -1;
 		}
 

@@ -1,4 +1,4 @@
-package matcher;
+package searcher;
 
 import java.util.Collections;
 import java.util.Iterator;

@@ -8,5 +8,4 @@ import lombok.Getter;
 public final class ChoiceNode implements ASTNode {
 	private ASTNode left;
 	private ASTNode right;
-
 }

@@ -3,7 +3,7 @@ package pattern;
 import automaton.dfa.DFA;
 import automaton.dfa.Decompiler;
 import lombok.Getter;
-import matcher.*;
+import searcher.*;
 import automaton.nfa.NFA;
 import syntaxtree.SyntaxTree;
 
@@ -38,10 +38,10 @@ public class Pattern {
 		if (withGroups && nfa == null) {
 			throw new IllegalArgumentException("pattern doesn`t contain groups");
 		} else if (withGroups) {
-			var matcher = new NFAMatcher(nfa, text);
+			var matcher = new NFASearcher(nfa, text);
 			return matcher.search();
 		} else {
-			var matcher = new DFAMatcher(dfa, text);
+			var matcher = new DFASearcher(dfa, text);
 			return matcher.search();
 		}
 	}

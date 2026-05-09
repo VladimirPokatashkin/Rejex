@@ -2,7 +2,7 @@ package pattern;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import matcher.SearchResult;
+import searcher.SearchResult;
 
 public class SearchTest {
 	@Test

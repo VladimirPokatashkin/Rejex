@@ -1,11 +1,11 @@
-package matcher;
+package searcher;
 
 import automaton.dfa.DFA;
 import automaton.dfa.DFAState;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class DFAMatcher {
+public class DFASearcher {
 	private final DFA dfa;
 	private final String input;
 

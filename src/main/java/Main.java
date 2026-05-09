@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public class Main {
 	public static void main(String[] args) {
 		Path root = Path.of(System.getProperty("user.dir"));
-		Pattern source = Pattern.compile("[a-z]/[123]");
+		Pattern source = Pattern.compile("ja|qq");
 		String decompiled = source.decompile();
 		Pattern copy = Pattern.compile(decompiled);
 
