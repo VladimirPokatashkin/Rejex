@@ -133,9 +133,25 @@ public class DFA {
 			partitions = newPartitions;
 		}
 
-		return rebuild(begin, partitions);
+		List<Set<DFAState>> notDeadPartitions = new ArrayList<>();
+		for (var partition : partitions) {
+			if (!isDeadPartition(partition, partitions) || partition.contains(begin)) notDeadPartitions.add(partition);
+		}
+
+		return rebuild(begin, notDeadPartitions);
 	}
 
+
+	private static boolean isDeadPartition(Set<DFAState> partition, List<Set<DFAState>> partitions) {
+		DFAState representative = partition.iterator().next();
+		if (representative.isAcceptable()) return false;
+
+		int index = partitions.indexOf(partition);
+
+		return representative.getTransitions().values().stream().allMatch(target ->
+				findPartitionIndex(partitions, target) == index
+		);
+	}
 
 	private static int findPartitionIndex(List<Set<DFAState>> partitions, DFAState target) {
 		if (target == null) return -1;
