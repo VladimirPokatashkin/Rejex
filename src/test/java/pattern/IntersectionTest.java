@@ -19,6 +19,10 @@ class IntersectionTest {
 
 		result = inter.search("q", false);
 		assertFalse(result.isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -34,6 +38,10 @@ class IntersectionTest {
 		assertFalse(inter.search("j", false).isSuccess());
 		assertFalse(inter.search("v", false).isSuccess());
 		assertFalse(inter.search("m", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -48,6 +56,10 @@ class IntersectionTest {
 		assertFalse(inter.search("2", false).isSuccess());
 		assertFalse(inter.search("5", false).isSuccess());
 		assertFalse(inter.search("9", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -62,6 +74,10 @@ class IntersectionTest {
 		assertFalse(inter.search("xyz", false).isSuccess());
 		assertFalse(inter.search("aaa", false).isSuccess());
 		assertFalse(inter.search("jvm", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -75,6 +91,10 @@ class IntersectionTest {
 
 		assertFalse(inter.search("", false).isSuccess());
 		assertFalse(inter.search("a", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -89,6 +109,10 @@ class IntersectionTest {
 		assertFalse(inter.search("gavi@barca.com", false).isSuccess());
 		assertFalse(inter.search("test@mail.ru", false).isSuccess());
 		assertFalse(inter.search("dvenashka@mephi.ru", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -123,6 +147,10 @@ class IntersectionTest {
 		assertTrue(inter.search("abc", false).isSuccess());
 		assertTrue(inter.search("aabbcc", false).isSuccess());
 		assertFalse(inter.search("", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -156,6 +184,10 @@ class IntersectionTest {
 		assertTrue(inter.search("b3", false).isSuccess());
 		assertFalse(inter.search("a1", false).isSuccess());
 		assertFalse(inter.search("a2", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 
 	@Test
@@ -169,5 +201,9 @@ class IntersectionTest {
 
 		assertEquals(3, inter.search("aabaa", false).end());
 		assertFalse(inter.search("bbbb", false).isSuccess());
+
+		String rejex = inter.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(inter.getDfa()));
 	}
 }

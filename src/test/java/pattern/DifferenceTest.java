@@ -19,6 +19,10 @@ class DifferenceTest {
 
 		result = diff.search("j", false);
 		assertTrue(result.isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -34,6 +38,10 @@ class DifferenceTest {
 		assertTrue(consonants.search("j", false).isSuccess());
 		assertTrue(consonants.search("v", false).isSuccess());
 		assertTrue(consonants.search("m", false).isSuccess());
+
+		String rejex = consonants.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(consonants.getDfa()));
 	}
 
 	@Test
@@ -48,6 +56,10 @@ class DifferenceTest {
 		assertTrue(diff.search("2", false).isSuccess());
 		assertTrue(diff.search("5", false).isSuccess());
 		assertTrue(diff.search("9", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -62,6 +74,10 @@ class DifferenceTest {
 		assertTrue(diff.search("xyz", false).isSuccess());
 		assertTrue(diff.search("aaa", false).isSuccess());
 		assertTrue(diff.search("jvm", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -74,6 +90,10 @@ class DifferenceTest {
 		assertTrue(diff.search("a", false).isSuccess());
 		assertTrue(diff.search("aaa", false).isSuccess());
 		assertTrue(diff.search("aaaa", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -88,6 +108,10 @@ class DifferenceTest {
 		assertTrue(diff.search("gavi@barca.com", false).isSuccess());
 		assertTrue(diff.search("test@mail.ru", false).isSuccess());
 		assertTrue(diff.search("dvenashka@mephi.ru", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -111,6 +135,10 @@ class DifferenceTest {
 		assertTrue(diff.search("aa", false).isSuccess());
 		assertFalse(diff.search("b", false).isSuccess());
 		assertFalse(diff.search("", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -134,6 +162,10 @@ class DifferenceTest {
 		assertTrue(diff.search("0", false).isSuccess());
 		assertFalse(diff.search("abc", false).isSuccess());
 		assertFalse(diff.search("a", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -153,6 +185,10 @@ class DifferenceTest {
 
 		assertTrue(diff.search("aboba23").isSuccess());
 		assertFalse(diff.search("aboba3").isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 
 	@Test
@@ -169,5 +205,9 @@ class DifferenceTest {
 		assertFalse(diff.search("b", false).isSuccess());
 		assertFalse(diff.search("aaaaab", false).isSuccess());
 		assertFalse(diff.search("bbbb", false).isSuccess());
+
+		String rejex = diff.decompile();
+		Pattern copy = Pattern.compile(rejex);
+		assertTrue(copy.getDfa().isIsomorphicTo(diff.getDfa()));
 	}
 }
