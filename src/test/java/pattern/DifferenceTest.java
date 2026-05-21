@@ -123,6 +123,7 @@ class DifferenceTest {
 		assertFalse(diff.search("aboba", false).isSuccess());
 		assertFalse(diff.search("jvm", false).isSuccess());
 		assertFalse(diff.search("", false).isSuccess());
+		assertNull(diff.decompile());
 	}
 
 	@Test
@@ -150,6 +151,7 @@ class DifferenceTest {
 		assertFalse(diff.search("aabbcc", false).isSuccess());
 		assertFalse(diff.search("aaa", false).isSuccess());
 		assertFalse(diff.search("", false).isSuccess());
+		assertNull(diff.decompile());
 	}
 
 	@Test

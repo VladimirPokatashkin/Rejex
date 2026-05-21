@@ -3,6 +3,7 @@ package pattern;
 import automaton.dfa.DFA;
 import automaton.dfa.Decompiler;
 import lombok.Getter;
+import lombok.NonNull;
 import searcher.*;
 import automaton.nfa.NFA;
 import syntaxtree.SyntaxTree;
@@ -22,7 +23,7 @@ public class Pattern {
 		dfa = dfa.minimize();
 	}
 
-	public static Pattern compile(String rejex) {
+	public static Pattern compile(@NonNull String rejex) {
 		return new Pattern(rejex);
 	}
 

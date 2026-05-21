@@ -125,6 +125,7 @@ class IntersectionTest {
 		assertFalse(inter.search("aboba", false).isSuccess());
 		assertFalse(inter.search("jvm", false).isSuccess());
 		assertFalse(inter.search("", false).isSuccess());
+		assertNull(inter.decompile());
 	}
 
 	@Test
@@ -137,6 +138,7 @@ class IntersectionTest {
 		assertFalse(inter.search("aa", false).isSuccess());
 		assertFalse(inter.search("b", false).isSuccess());
 		assertFalse(inter.search("", false).isSuccess());
+		assertNull(inter.decompile());
 	}
 
 	@Test
@@ -163,6 +165,7 @@ class IntersectionTest {
 		assertFalse(inter.search("0", false).isSuccess());
 		assertFalse(inter.search("abc", false).isSuccess());
 		assertFalse(inter.search("a", false).isSuccess());
+		assertNull(inter.decompile());
 	}
 
 	@Test

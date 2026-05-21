@@ -112,6 +112,6 @@ public class Decompiler {
 			}
 		}
 
-		return res;
+		return res.equals(EMPTY_SET) ? null : res;
 	}
 }
