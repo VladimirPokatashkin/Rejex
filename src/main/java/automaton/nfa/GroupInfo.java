@@ -3,6 +3,8 @@ package automaton.nfa;
 import lombok.Getter;
 import lombok.Setter;
 
+
+
 @Getter
 @Setter
 public class GroupInfo {

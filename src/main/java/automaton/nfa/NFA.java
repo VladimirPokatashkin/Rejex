@@ -177,6 +177,8 @@ public final class NFA {
 		return new NFA(begin, currentEnd);
 	}
 
+
+
 	private static NFA ofLookahead(LookaheadNode lookahead) {
 		NFA mainPart = ofNode(lookahead.getLeft());
 		NFA lookaheadPart = ofNode(lookahead.getRight());
