@@ -8,7 +8,8 @@ import java.util.*;
 
 @Getter
 @EqualsAndHashCode
-public class DFAState {
+public class
+DFAState {
 	private static int counter = 0;
 	@Setter
 	@EqualsAndHashCode.Exclude

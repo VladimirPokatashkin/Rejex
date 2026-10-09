@@ -8,9 +8,7 @@ import java.nio.file.Path;
 public class Main {
 	public static void main(String[] args) {
 		Path root = Path.of(System.getProperty("user.dir"));
-		Pattern source = Pattern.compile("ja|qq");
-		String decompiled = source.decompile();
-		Pattern copy = Pattern.compile(decompiled);
+		Pattern copy = Pattern.compile("(me*|p*h|i)*~");
 
 		try {
 			Files.write(root.resolve("src/main/resources/graphviz/syntaxtree.dot"),
@@ -30,7 +28,7 @@ public class Main {
 			System.err.println(ex.getMessage());
 		}
 
-		if (copy.search("xab@a.abcx", false).isSuccess()) {
+		if (copy.search("abbcgh", false).isSuccess()) {
 			System.out.println("goida!1!1!");
 		} else {
 			System.out.println("ne goida(((");

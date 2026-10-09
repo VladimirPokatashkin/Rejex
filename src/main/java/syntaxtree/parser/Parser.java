@@ -115,6 +115,27 @@ public class Parser {
 		return new RepetitionNode(node, min, max);
 	}
 
+	private ASTNode reverseNode(ASTNode node) throws ParsingException {
+		return switch (node) {
+			case LiteralNode _, EmptyNode _, EndNode _ -> node;
+			case GroupNode group -> reverseNode(group.getNode());
+			case ChoiceNode choice -> new ChoiceNode(reverseNode(choice.getLeft()), reverseNode(choice.getRight()));
+			case RepetitionNode rep -> new RepetitionNode(rep.getNode(), rep.getMin(), rep.getMax());
+			case ConcatenationNode c -> {
+				List<ASTNode> children = new ArrayList<>();
+				for (int i = c.getChildren().size() - 1; i >= 0; i--) {
+					children.add(reverseNode(c.getChildren().get(i)));
+				}
+				yield new ConcatenationNode(children);
+			}
+			default -> throw new ParsingException("unsupported operation.");
+		};
+	}
+
+	private ASTNode parseTilda(ASTNode node) throws ParsingException {
+		return new ConcatenationNode(List.of(node, reverseNode(node)));
+	}
+
 	private ASTNode parseRepetition() throws ParsingException {
 		ASTNode node = parseLiteral();
 		if (matches('*') || matches('…')) {
@@ -125,6 +146,9 @@ public class Parser {
 		}
 		if (matches('{')) {
 			return parseRange(node);
+		}
+		if (matches('~')) {
+			return parseTilda(node);
 		}
 		return node;
 	}
@@ -144,7 +168,10 @@ public class Parser {
 		children.add(parseLookahead());
 		while (pos < input.length() && notIsStopToken()) {
 			matches('.');
-			children.add(parseLookahead());
+			if (matches('~')) {
+				children.add(reverseNode(children.getLast()));
+			}
+			else children.add(parseLookahead());
 		}
 		return children.size() == 1 ? children.getFirst() : new ConcatenationNode(children);
 	}

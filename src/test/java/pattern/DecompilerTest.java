@@ -1,32 +1,24 @@
 package pattern;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DecompilerTest {
-	@Test
-	void emptyStringOnlyTest() {
-		Pattern source = Pattern.compile("$");
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"$", "j", "j*"
+	})
+	void emptyStringOnlyTest(String pattern) {
+		Pattern source = Pattern.compile(pattern);
 		String decompiled = source.decompile();
 		Pattern copy = Pattern.compile(decompiled);
 		assertTrue(source.getDfa().isIsomorphicTo(copy.getDfa()));
 	}
 
-	@Test
-	void singleLiteralOnlyTest() {
-		Pattern source = Pattern.compile("j");
-		String decompiled = source.decompile();
-		Pattern copy = Pattern.compile(decompiled);
-		assertTrue(source.getDfa().isIsomorphicTo(copy.getDfa()));
-	}
-
-	@Test
-	void starOperatorTest() {
-		Pattern source = Pattern.compile("j*");
-		String decompiled = source.decompile();
-		Pattern copy = Pattern.compile(decompiled);
-		assertTrue(source.getDfa().isIsomorphicTo(copy.getDfa()));
-	}
 
 	@Test
 	void concatenationTest() {

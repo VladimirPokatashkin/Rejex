@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
 @Getter
 public class NFAState {
 	private static int counter = 0;

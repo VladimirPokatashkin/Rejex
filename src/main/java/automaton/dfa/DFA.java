@@ -90,6 +90,8 @@ public class DFA {
 			}
 		}
 
+
+
 		return new DFA(begin, states);
 	}
 
